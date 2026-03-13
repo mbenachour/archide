@@ -1,0 +1,51 @@
+{
+  "project": "karpathyautoresearch",
+  "nodes": [
+    {
+      "id": "Database",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "id": "API Service",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "id": "Worker Service",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "id": "Redis",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "id": "Message Queue",
+      "project": "karpathyautoresearch"
+    }
+  ],
+  "edges": [
+    {
+      "source": "API Service",
+      "target": "Database",
+      "type": "CONNECTS",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "source": "API Service",
+      "target": "Redis",
+      "type": "USES_CACHE",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "source": "Worker Service",
+      "target": "Message Queue",
+      "type": "CONSUMES",
+      "project": "karpathyautoresearch"
+    },
+    {
+      "source": "Worker Service",
+      "target": "Database",
+      "type": "READS_WRITES",
+      "project": "karpathyautoresearch"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+    "project": "ArchIDE",
+    "nodes": [
+        {
+            "id": "diagram_py",
+            "label": "diagram.py",
+            "tier": "Core",
+            "path": "diagram.py",
+            "description": "Main Python orchestration script for analyzing git repos and generating architecture graphs"
+        },
+        {
+            "id": "graph_ui",
+            "label": "Graph UI Client",
+            "tier": "Core",
+            "path": "graph-ui/src/App.tsx",
+            "description": "React Flow client to dynamically visualize generated JSON architectures"
+        },
+        {
+            "id": "ollama",
+            "label": "Ollama LLM",
+            "tier": "Supporting",
+            "path": "localhost:11434",
+            "description": "Local large language model providing contextual project insights"
+        }
+    ],
+    "edges": [
+        {
+            "source": "diagram_py",
+            "target": "ollama",
+            "type": "PROMPTS"
+        },
+        {
+            "source": "diagram_py",
+            "target": "graph_ui",
+            "type": "GENERATES_JSON_FOR"
+        }
+    ]
+}

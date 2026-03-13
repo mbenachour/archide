@@ -1,0 +1,333 @@
+{
+  "project": "microsoftBitNet",
+  "nodes": [
+    {
+      "id": "ggml_bitnet_lut",
+      "label": "ggml-bitnet-lut (CPU Kernel)",
+      "tier": "Core",
+      "path": "src/ggml-bitnet-lut.cpp",
+      "description": "C++ module implementing Look-Up Table operations for 1.58-bit CPU inference.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "ggml_bitnet_mad",
+      "label": "ggml-bitnet-mad (CPU Kernel)",
+      "tier": "Core",
+      "path": "src/ggml-bitnet-mad.cpp",
+      "description": "C++ module implementing Multiply-Add operations for 1.58-bit CPU inference.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "bitnet_kernels_cu",
+      "label": "bitnet_kernels.cu (GPU Kernel)",
+      "tier": "Core",
+      "path": "gpu/bitnet_kernels/bitnet_kernels.cu",
+      "description": "CUDA implementation parallelizing ternary operations for NVIDIA GPUs.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "gpu_model_py",
+      "label": "gpu/model.py",
+      "tier": "Core",
+      "path": "gpu/model.py",
+      "description": "High-level Python runtime wrapper for loading checkpoints and managing GPU memory.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "gpu_generate_py",
+      "label": "gpu/generate.py",
+      "tier": "Core",
+      "path": "gpu/generate.py",
+      "description": "Python script orchestrating the inference generation loop using core kernels.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "ggml_bitnet_h",
+      "label": "ggml-bitnet.h",
+      "tier": "Core",
+      "path": "include/ggml-bitnet.h",
+      "description": "Header file defining the interface for optimized ternary kernels.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "preset_kernels",
+      "label": "preset_kernels configurations",
+      "tier": "Core",
+      "path": "preset_kernels/",
+      "description": "Static store of pre-tuned kernel parameters and headers for specific architectures.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "convert_hf_gguf",
+      "label": "convert-hf-to-gguf-bitnet.py",
+      "tier": "Supporting",
+      "path": "utils/convert-hf-to-gguf-bitnet.py",
+      "description": "Tool converting Hugging Face checkpoints to specialized GGUF format.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "convert_ms_gguf",
+      "label": "convert-ms-to-gguf-bitnet.py",
+      "tier": "Supporting",
+      "path": "utils/convert-ms-to-gguf-bitnet.py",
+      "description": "Tool converting Megatron checkpoints to specialized GGUF format.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "pack_weight_py",
+      "label": "pack_weight.py",
+      "tier": "Supporting",
+      "path": "gpu/pack_weight.py",
+      "description": "Utility for binary packing of ternary weights for lossless representation.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "quantize_emb_py",
+      "label": "quantize_embeddings.py",
+      "tier": "Supporting",
+      "path": "utils/quantize_embeddings.py",
+      "description": "Script handling quantization of embedding layers.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "e2e_benchmark_py",
+      "label": "e2e_benchmark.py",
+      "tier": "Supporting",
+      "path": "utils/e2e_benchmark.py",
+      "description": "End-to-end benchmarking utility for performance metrics.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "test_perplexity_py",
+      "label": "test_perplexity.py",
+      "tier": "Supporting",
+      "path": "utils/test_perplexity.py",
+      "description": "Validation tool for measuring model perplexity.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "convert_checkpoint_py",
+      "label": "convert_checkpoint.py",
+      "tier": "Supporting",
+      "path": "gpu/convert_checkpoint.py",
+      "description": "General checkpoint conversion utility for GPU workflows.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "convert_safetensors_py",
+      "label": "convert_safetensors.py",
+      "tier": "Supporting",
+      "path": "gpu/convert_safetensors.py",
+      "description": "Converter for Safetensors format to engine-compatible format.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "cmake_lists",
+      "label": "CMakeLists.txt",
+      "tier": "Dev",
+      "path": "CMakeLists.txt",
+      "description": "Root build configuration orchestrating C++ and CUDA compilation.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "codegen_tl1_py",
+      "label": "codegen_tl1.py",
+      "tier": "Dev",
+      "path": "utils/codegen_tl1.py",
+      "description": "Meta-programming tool generating Tier 1 C++/CUDA kernel source code.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "codegen_tl2_py",
+      "label": "codegen_tl2.py",
+      "tier": "Dev",
+      "path": "utils/codegen_tl2.py",
+      "description": "Meta-programming tool generating Tier 2 C++/CUDA kernel source code.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "setup_py",
+      "label": "setup.py",
+      "tier": "Dev",
+      "path": "gpu/bitnet_kernels/setup.py",
+      "description": "Python package build script for the GPU kernel submodule.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "setup_env_py",
+      "label": "setup_env.py",
+      "tier": "Dev",
+      "path": "setup_env.py",
+      "description": "Environment configuration and dependency installation manager.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "test_py",
+      "label": "test.py",
+      "tier": "Dev",
+      "path": "gpu/test.py",
+      "description": "Primary verification script for GPU kernel correctness.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "test_gemm_sh",
+      "label": "test_gemm_kernel.sh",
+      "tier": "Dev",
+      "path": "utils/test_gemm_kernel.sh",
+      "description": "Shell script for testing GEMM kernel performance.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "gen_dummy_py",
+      "label": "generate-dummy-bitnet-model.py",
+      "tier": "Dev",
+      "path": "utils/generate-dummy-bitnet-model.py",
+      "description": "Utility for generating dummy models for testing purposes.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "tune_gemm_py",
+      "label": "tune_gemm_config.py",
+      "tier": "Dev",
+      "path": "utils/tune_gemm_config.py",
+      "description": "Tool for auto-tuning GEMM configuration parameters.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "requirements_txt",
+      "label": "requirements.txt",
+      "tier": "Dev",
+      "path": "requirements.txt",
+      "description": "Dependency manifest for Python environment setup.",
+      "project": "microsoftBitNet"
+    }
+  ],
+  "edges": [
+    {
+      "source": "ggml_bitnet_h",
+      "target": "ggml_bitnet_lut",
+      "type": "DEFINES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "ggml_bitnet_h",
+      "target": "ggml_bitnet_mad",
+      "type": "DEFINES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpu_model_py",
+      "target": "bitnet_kernels_cu",
+      "type": "CALLS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpu_generate_py",
+      "target": "gpu_model_py",
+      "type": "USES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "ggml_bitnet_lut",
+      "target": "preset_kernels",
+      "type": "READS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "ggml_bitnet_mad",
+      "target": "preset_kernels",
+      "type": "READS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "bitnet_kernels_cu",
+      "target": "preset_kernels",
+      "type": "READS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "convert_hf_gguf",
+      "target": "gpu_model_py",
+      "type": "PREPARES_FOR",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "convert_ms_gguf",
+      "target": "gpu_model_py",
+      "type": "PREPARES_FOR",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "pack_weight_py",
+      "target": "bitnet_kernels_cu",
+      "type": "PREPARES_FOR",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "quantize_emb_py",
+      "target": "gpu_model_py",
+      "type": "PREPARES_FOR",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "e2e_benchmark_py",
+      "target": "gpu_generate_py",
+      "type": "VALIDATES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "test_perplexity_py",
+      "target": "gpu_model_py",
+      "type": "VALIDATES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "codegen_tl1_py",
+      "target": "ggml_bitnet_lut",
+      "type": "GENERATES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "codegen_tl2_py",
+      "target": "bitnet_kernels_cu",
+      "type": "GENERATES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "cmake_lists",
+      "target": "ggml_bitnet_lut",
+      "type": "BUILDS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "cmake_lists",
+      "target": "bitnet_kernels_cu",
+      "type": "BUILDS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "setup_py",
+      "target": "bitnet_kernels_cu",
+      "type": "BUILDS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "test_py",
+      "target": "bitnet_kernels_cu",
+      "type": "VALIDATES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "test_gemm_sh",
+      "target": "bitnet_kernels_cu",
+      "type": "VALIDATES",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "setup_env_py",
+      "target": "requirements_txt",
+      "type": "READS",
+      "project": "microsoftBitNet"
+    }
+  ]
+}
