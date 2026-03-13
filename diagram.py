@@ -43,7 +43,7 @@ except ImportError:
 # ── Configuration ────────────────────────────────────────────────────────────
 
 DEFAULT_MODEL = "qwen3.5:397b-cloud"
-DEFAULT_OLLAMA_URL = "http://localhost:11434"
+DEFAULT_OLLAMA_URL = "https://ollama.com"
 MAX_TOKENS = 4096
 
 MANIFEST_PATHS = [
@@ -216,6 +216,10 @@ class OllamaClient:
     def __init__(self, base_url: str, model: str):
         self.url = base_url.rstrip("/") + "/api/chat"
         self.model = model
+        self.api_key = os.environ.get("OLLAMA_API_KEY") or os.environ.get("OLLAMA_API_TOKEN")
+        self.headers = {}
+        if self.api_key:
+            self.headers["Authorization"] = f"Bearer {self.api_key}"
 
     def chat(self, system: str, user: str) -> str:
         payload = {
@@ -224,24 +228,83 @@ class OllamaClient:
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            "stream": False,
-            "options": {"num_predict": MAX_TOKENS},
-            "think": False
+            "stream": False
         }
         
-        try:
-            r = requests.post(self.url, json=payload, timeout=300)
-            r.raise_for_status()
-        except requests.exceptions.ConnectionError:
-            sys.exit(f"Cannot reach Ollama at {self.url}.")
-        except requests.exceptions.HTTPError as e:
-            sys.exit(f"Ollama API error: {e}\n{r.text}")
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                r = requests.post(self.url, json=payload, headers=self.headers, timeout=300)
+                r.raise_for_status()
+                return r.json()["message"]["content"]
+            except requests.exceptions.ConnectionError:
+                if attempt == max_retries - 1:
+                    sys.exit(f"Cannot reach Ollama at {self.url}.")
+            except requests.exceptions.HTTPError as e:
+                # Retry on 5xx server errors
+                if 500 <= r.status_code < 600 and attempt < max_retries - 1:
+                    print(f"        ⚠ Ollama API 5xx Error, retrying {attempt+1}/{max_retries}...", flush=True)
+                    time.sleep(2)
+                    continue
+                sys.exit(f"Ollama API error: {e}\n{r.text}")
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    sys.exit(f"Ollama API unexpected error: {e}")
+            
+            # small backoff on connection errors
+            time.sleep(2)
+            
+            sys.exit("Failed to communicate with Ollama.")
 
-        return r.json()["message"]["content"]
+
+class OpenAIClient:
+    def __init__(self, model: str):
+        self.url = "https://api.openai.com/v1/chat/completions"
+        self.model = model
+        self.api_key = os.environ.get("OPENAI_API_TOKEN") or os.environ.get("OPENAI_API_KEY")
+        if not self.api_key:
+            sys.exit("Missing OPENAI_API_TOKEN or OPENAI_API_KEY environment variable. Required for provider=openai.")
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+    def chat(self, system: str, user: str) -> str:
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "developer" if "gpt-5" in self.model or "o1" in self.model or "o3" in self.model else "system", "content": system},
+                {"role": "user", "content": user},
+            ]
+        }
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                r = requests.post(self.url, json=payload, headers=self.headers, timeout=300)
+                r.raise_for_status()
+                return r.json()["choices"][0]["message"]["content"]
+            except requests.exceptions.ConnectionError:
+                if attempt == max_retries - 1:
+                    sys.exit(f"Cannot reach OpenAI at {self.url}.")
+            except requests.exceptions.HTTPError as e:
+                # Retry on 5xx server errors and 429 rate limits
+                if (500 <= r.status_code < 600 or r.status_code == 429) and attempt < max_retries - 1:
+                    print(f"        ⚠ OpenAI API Error {r.status_code}, retrying {attempt+1}/{max_retries}...", flush=True)
+                    time.sleep(4)
+                    continue
+                sys.exit(f"OpenAI API error: {e}\n{r.text}")
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    sys.exit(f"OpenAI API unexpected error: {e}")
+            
+            time.sleep(2)
+            
+        sys.exit("Failed to communicate with OpenAI.")
 
 
-def call_ollama(client: OllamaClient, system: str, user: str, step_label: str, debug_dir: Optional[str] = None) -> str:
-    print(f"  Calling Ollama [{client.model}] ({step_label})...", flush=True)
+def call_llm(client, system: str, user: str, step_label: str, debug_dir: Optional[str] = None) -> str:
+    print(f"  Calling LLM [{client.model}] ({step_label})...", flush=True)
     raw = client.chat(system, user)
     cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
 
@@ -272,9 +335,9 @@ def extract_json(text: str) -> dict:
 
 SYSTEM_PROMPT_0 = """Write a single sentence describing what this software DOES for its end user at runtime. Focus on functionality, not how it is built. No preamble."""
 
-def step0_purpose(client: OllamaClient, data: dict, debug_dir: Optional[str] = None) -> str:
+def step0_purpose(client, data: dict, debug_dir: Optional[str] = None) -> str:
     user = f"<file_tree>\n{data['file_tree'][:3000]}\n</file_tree>\n<readme>\n{data['readme'][:4000]}\n</readme>"
-    result = call_ollama(client, SYSTEM_PROMPT_0, user, "Step 0/5 — purpose extraction", debug_dir)
+    result = call_llm(client, SYSTEM_PROMPT_0, user, "Step 0/5 — purpose extraction", debug_dir)
     return result.strip().strip('"').strip("'")
 
 
@@ -291,11 +354,11 @@ Output JSON:
 <explanation>Detailed architecture...</explanation>
 <classification>{"Core": ["Service A", "Service B"], "Supporting": ["Cache"], "Dev": ["Webpack", "Jest"]}</classification>"""
 
-def step1_explain(client: OllamaClient, data: dict, purpose: str, detail: bool = False, debug_dir: Optional[str] = None) -> tuple[str, dict]:
+def step1_explain(client, data: dict, purpose: str, detail: bool = False, debug_dir: Optional[str] = None) -> tuple[str, dict]:
     sys_prompt = SYSTEM_PROMPT_1_DETAILED if detail else SYSTEM_PROMPT_1_FOCUSED
     label = "Step 1/5 — architecture classification"
     user = f"<purpose>\n{purpose}\n</purpose>\n<file_tree>\n{data['file_tree'][:4000]}\n</file_tree>\n<additional_signals>\n{format_manifests(data)[:4000]}\n</additional_signals>"
-    result = call_ollama(client, sys_prompt, user, label, debug_dir)
+    result = call_llm(client, sys_prompt, user, label, debug_dir)
     
     exp_match = re.search(r"<explanation>(.*?)</explanation>", result, re.DOTALL)
     explanation = exp_match.group(1).strip() if exp_match else result.strip()
@@ -310,11 +373,11 @@ def step1_explain(client: OllamaClient, data: dict, purpose: str, detail: bool =
 SYSTEM_PROMPT_2 = """Map provided components to their most representative directory or file path in the tree.
 Return JSON mapping: {"ComponentA": "src/api", "ComponentB": "src/db.ts"}"""
 
-def step2_map(client: OllamaClient, explanation: str, file_tree: str, classification: dict, detail: bool = False, debug_dir: Optional[str] = None) -> dict:
+def step2_map(client, explanation: str, file_tree: str, classification: dict, detail: bool = False, debug_dir: Optional[str] = None) -> dict:
     comps = classification.get("Core", []) + classification.get("Supporting", []) + (classification.get("Dev", []) if detail else [])
     comps_list = "\n".join(f"- {c}" for c in comps) if comps else "(all components)"
     user = f"<explanation>\n{explanation}\n</explanation>\n<components_to_map>\n{comps_list}\n</components_to_map>\n<file_tree>\n{file_tree[:4000]}\n</file_tree>"
-    result = call_ollama(client, SYSTEM_PROMPT_2, user, "Step 2/5 — file mapping", debug_dir)
+    result = call_llm(client, SYSTEM_PROMPT_2, user, "Step 2/5 — file mapping", debug_dir)
     return extract_json(result)
 
 
@@ -334,12 +397,12 @@ Return ONLY valid JSON.
   "edges": [...]
 }"""
 
-def step3_generate_graph(client: OllamaClient, purpose: str, explanation: str, classification: dict, component_map: dict, detail: bool, debug_dir: Optional[str] = None) -> dict:
+def step3_generate_graph(client, purpose: str, explanation: str, classification: dict, component_map: dict, detail: bool, debug_dir: Optional[str] = None) -> dict:
     tiers = {"Core": classification.get("Core", []), "Supporting": classification.get("Supporting", [])}
     if detail: tiers["Dev"] = classification.get("Dev", [])
     
     user = f"<purpose>\n{purpose}\n</purpose>\n<explanation>\n{explanation}\n</explanation>\n<tiers>\n{json.dumps(tiers, indent=2)}\n</tiers>\n<component_paths>\n{json.dumps(component_map, indent=2)}\n</component_paths>"
-    result = call_ollama(client, SYSTEM_PROMPT_3, user, "Step 3/5 — Graph DB JSON generation", debug_dir)
+    result = call_llm(client, SYSTEM_PROMPT_3, user, "Step 3/5 — Graph DB JSON generation", debug_dir)
     
     parsed = extract_json(result)
     if "nodes" not in parsed:
@@ -352,10 +415,10 @@ SYSTEM_PROMPT_4 = """Given the architecture graph JSON and manifests, verify if 
 Return JSON:
 { "complete": true/false, "missing_nodes": ["Redis"], "missing_edges": [{"source": "API", "target": "Redis", "type": "USES_CACHE"}], "notes": "..." }"""
 
-def step4_validate(client: OllamaClient, graph_json: dict, data: dict, debug_dir: Optional[str] = None) -> dict:
+def step4_validate(client, graph_json: dict, data: dict, debug_dir: Optional[str] = None) -> dict:
     if not format_manifests(data): return {"complete": True}
     user = f"<graph>\n{json.dumps(graph_json)}\n</graph>\n<manifests>\n{format_manifests(data)[:6000]}\n</manifests>"
-    res = call_ollama(client, SYSTEM_PROMPT_4, user, "Step 4/5 — graph validation", debug_dir)
+    res = call_llm(client, SYSTEM_PROMPT_4, user, "Step 4/5 — graph validation", debug_dir)
     return extract_json(res) or {"complete": True}
 
 
@@ -373,13 +436,13 @@ Output ONLY the completely merged valid JSON:
   "edges": [...]
 }"""
 
-def step5_repair_graph(client: OllamaClient, graph_json: dict, validation: dict, debug_dir: Optional[str] = None) -> dict:
+def step5_repair_graph(client, graph_json: dict, validation: dict, debug_dir: Optional[str] = None) -> dict:
     nodes = validation.get("missing_nodes", [])
     edges = validation.get("missing_edges", [])
     if not nodes and not edges: return graph_json
     
     user = f"<graph_json>\n{json.dumps(graph_json)}\n</graph_json>\n<missing_nodes>\n{json.dumps(nodes)}\n</missing_nodes>\n<missing_edges>\n{json.dumps(edges)}\n</missing_edges>"
-    res = call_ollama(client, SYSTEM_PROMPT_5, user, "Step 5/5 — repair", debug_dir)
+    res = call_llm(client, SYSTEM_PROMPT_5, user, "Step 5/5 — repair", debug_dir)
     return extract_json(res) or graph_json
 
 
@@ -414,15 +477,20 @@ def main():
     parser.add_argument("--skip-validation", action="store_true", help="Skip missing node checks")
     parser.add_argument("--detail", action="store_true", help="Include Dev tools and sub-modules")
     parser.add_argument("--debug", action="store_true", help="Save intermediate Ollama prompt/responses")
+    parser.add_argument("--provider", default=os.environ.get("PROVIDER", "ollama"), choices=["ollama", "openai"])
     parser.add_argument("--model", default=os.environ.get("OLLAMA_MODEL", DEFAULT_MODEL))
+    parser.add_argument("--openai-model", default=os.environ.get("OPENAI_MODEL", "gpt-4o-mini"))
     parser.add_argument("--ollama-url", default=os.environ.get("OLLAMA_URL", DEFAULT_OLLAMA_URL))
     args = parser.parse_args()
 
     debug_dir = "debug" if args.debug else None
+    
+    provider_model = args.openai_model if args.provider == "openai" else args.model
 
     print(f"\n🔍 Analyzing repository: {args.repo}...")
-    print(f"   Model  : {args.model}")
-    print(f"   Mode   : {'detailed' if args.detail else 'focused'}")
+    print(f"   Provider : {args.provider.upper()}")
+    print(f"   Model    : {provider_model}")
+    print(f"   Mode     : {'detailed' if args.detail else 'focused'}")
 
     # Local repo clone / crawl
     print("\n[ 1/2 ] Collecting repository data (locally)")
@@ -437,7 +505,10 @@ def main():
 
     # AI
     print("\n[ 2/2 ] Running AI Graph DB pipeline")
-    ai = OllamaClient(base_url=args.ollama_url, model=args.model)
+    if args.provider == "openai":
+        ai = OpenAIClient(model=args.openai_model)
+    else:
+        ai = OllamaClient(base_url=args.ollama_url, model=args.model)
 
     purpose = step0_purpose(ai, data, debug_dir)
     explanation, classification = step1_explain(ai, data, purpose, args.detail, debug_dir)

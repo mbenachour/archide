@@ -1,0 +1,19 @@
+=== RAW ===
+{
+  "complete": false,
+  "missing_nodes": ["Redis"],
+  "missing_edges": [
+    {"source": "API", "target": "Redis", "type": "USES_CACHE"}
+  ],
+  "notes": "Architecture graph is empty (no nodes/edges). Manifest files show only Python package requirements for llama.cpp and do not define services, databases, or environment configurations (no .env references or docker-compose definitions). Redis (a common DB/cache) is therefore missing, along with the API -> Redis usage edge that would indicate a caching layer."
+}
+
+=== CLEANED ===
+{
+  "complete": false,
+  "missing_nodes": ["Redis"],
+  "missing_edges": [
+    {"source": "API", "target": "Redis", "type": "USES_CACHE"}
+  ],
+  "notes": "Architecture graph is empty (no nodes/edges). Manifest files show only Python package requirements for llama.cpp and do not define services, databases, or environment configurations (no .env references or docker-compose definitions). Redis (a common DB/cache) is therefore missing, along with the API -> Redis usage edge that would indicate a caching layer."
+}

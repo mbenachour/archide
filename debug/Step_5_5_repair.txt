@@ -1,0 +1,21 @@
+=== RAW ===
+{
+  "nodes": [
+    {"id": "API"},
+    {"id": "Redis"}
+  ],
+  "edges": [
+    {"source": "API", "target": "Redis", "type": "USES_CACHE"}
+  ]
+}
+
+=== CLEANED ===
+{
+  "nodes": [
+    {"id": "API"},
+    {"id": "Redis"}
+  ],
+  "edges": [
+    {"source": "API", "target": "Redis", "type": "USES_CACHE"}
+  ]
+}

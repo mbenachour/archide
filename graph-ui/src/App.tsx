@@ -15,10 +15,12 @@ import {
   useReactFlow
 } from '@xyflow/react';
 import CustomNode from './CustomNode';
+import ContainerNode from './ContainerNode';
 import Sidebar from './Sidebar';
 
 const nodeTypes = {
   custom: CustomNode,
+  container: ContainerNode,
 };
 
 // Use Vite's Glob Import to dynamically load all JSON files in the architectures folder
@@ -67,7 +69,7 @@ function ArchitectureFlow() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
 
   // Load available projects on mount
   useEffect(() => {
@@ -175,21 +177,86 @@ function ArchitectureFlow() {
         'External': 'New External API',
       };
 
-      const newNode = {
+      const newNode: any = {
         id: getId(),
         type,
         position,
         data: {
-          label: tierLabels[tier] || 'New Node',
+          label: type === 'container' ? 'Container' : (tierLabels[tier] || 'New Node'),
           tier: tier,
-          description: 'Double click to edit (feature coming soon)',
+          description: type === 'container' ? 'Group of services' : 'Double click to edit (feature coming soon)',
           path: ''
         },
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      if (type === 'container') {
+        newNode.style = { width: 300, height: 200 };
+        newNode.zIndex = -10;
+      }
+
+      setNodes((nds) => {
+        // Find if we dropped onto an existing container immediately
+        const containerHit = nds.find(n =>
+          n.type === 'container' &&
+          n.position.x <= position.x && position.x <= n.position.x + (n.style?.width || 300) &&
+          n.position.y <= position.y && position.y <= n.position.y + (n.style?.height || 200)
+        );
+
+        if (containerHit && type !== 'container') {
+          newNode.parentId = containerHit.id;
+          newNode.position = {
+            x: position.x - containerHit.position.x,
+            y: position.y - containerHit.position.y
+          };
+          newNode.extent = 'parent';
+        }
+
+        return nds.concat(newNode);
+      });
     },
     [screenToFlowPosition, setNodes]
+  );
+
+  const onNodeDragStop = useCallback(
+    (_: any, node: any) => {
+      if (node.type === 'container') return;
+
+      const intersections = getIntersectingNodes(node).filter((n) => n.type === 'container');
+      const containerNode = intersections[0];
+
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === node.id) {
+            if (containerNode && n.parentId !== containerNode.id) {
+              // Moving into a new container
+              const oldParent = n.parentId ? nds.find((p) => p.id === n.parentId) : null;
+              const absX = oldParent ? node.position.x + oldParent.position.x : node.position.x;
+              const absY = oldParent ? node.position.y + oldParent.position.y : node.position.y;
+
+              n.parentId = containerNode.id;
+              n.position = {
+                x: absX - containerNode.position.x,
+                y: absY - containerNode.position.y,
+              };
+              n.extent = 'parent';
+            } else if (!containerNode && n.parentId) {
+              // Moving out of the container
+              const oldParent = nds.find((p) => p.id === n.parentId);
+              n.parentId = undefined;
+              n.extent = undefined;
+              if (oldParent) {
+                n.position = {
+                  x: node.position.x + oldParent.position.x,
+                  y: node.position.y + oldParent.position.y,
+                };
+              }
+            }
+          }
+          return n;
+        })
+      );
+    },
+    [getIntersectingNodes, setNodes]
   );
 
   if (projects.length === 0) {
@@ -216,6 +283,7 @@ function ArchitectureFlow() {
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onNodeDragStop={onNodeDragStop}
           nodeTypes={nodeTypes}
           fitView
         >

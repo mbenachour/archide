@@ -2,349 +2,373 @@
   "project": "microsoftBitNet",
   "nodes": [
     {
-      "id": "ggml_bitnet_lut",
-      "label": "GGML BitNet LUT Kernel",
+      "id": "ggmlbitnetlutcpp",
+      "label": "GGML BitNet LUT C++",
       "tier": "Core",
       "path": "src/ggml-bitnet-lut.cpp",
-      "description": "Implements Look-Up Table kernels for efficient bit-level CPU computation.",
+      "description": "Core LUT backend source for 1-bit GGML.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "ggml_bitnet_mad",
-      "label": "GGML BitNet MAD Kernel",
+      "id": "ggmlbitnetmadcpp",
+      "label": "GGML BitNet MAD C++",
       "tier": "Core",
       "path": "src/ggml-bitnet-mad.cpp",
-      "description": "Implements Multiply-Add operations for matrix multiplication.",
+      "description": "Core MAD backend source for 1-bit GGML.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "ggml_bitnet_h",
-      "label": "BitNet Public API",
+      "id": "ggmlbitneth",
+      "label": "GGML BitNet Header",
       "tier": "Core",
       "path": "include/ggml-bitnet.h",
-      "description": "Header exposing BitNet operations to the GGML runtime.",
+      "description": "Shared header for 1-bit GGML interfaces.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "gemm_config_h",
-      "label": "GEMM Configuration",
-      "tier": "Core",
-      "path": "include/gemm-config.h",
-      "description": "Defines tensor layout and kernel configuration constants.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "bitnet_kernels_cu",
-      "label": "CUDA BitNet Kernels",
+      "id": "bitnetkernelscu",
+      "label": "BitNet CUDA Kernels",
       "tier": "Core",
       "path": "gpu/bitnet_kernels/bitnet_kernels.cu",
-      "description": "Custom CUDA kernels for GPU acceleration and fusion.",
+      "description": "CUDA kernels for BitNet operations.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "bitnet_kernels_h",
-      "label": "CUDA Kernel Headers",
+      "id": "bitnetkernelsh",
+      "label": "BitNet Kernels Header",
       "tier": "Core",
       "path": "gpu/bitnet_kernels/bitnet_kernels.h",
-      "description": "C++ bindings for CUDA kernel implementations.",
+      "description": "API header for GPU kernels.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "preset_large",
-      "label": "Large Model Preset",
+      "id": "bitnetlutkernelstl1h",
+      "label": "BitNet LUT Kernels TL1",
       "tier": "Core",
-      "path": "preset_kernels/bitnet_b1_58-large",
-      "description": "Pre-compiled kernel configs for large BitNet variants.",
+      "path": "preset_kernels/bitnet_b1_58-large/bitnet-lut-kernels-tl1.h",
+      "description": "TL1 LUT kernel presets.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "preset_llama3",
-      "label": "Llama3 8B Preset",
+      "id": "bitnetlutkernelstl2h",
+      "label": "BitNet LUT Kernels TL2",
       "tier": "Core",
-      "path": "preset_kernels/Llama3-8B-1.58-100B-tokens",
-      "description": "Optimized configs for Llama3 8B 1.58-bit models.",
+      "path": "preset_kernels/bitnet_b1_58-large/bitnet-lut-kernels-tl2.h",
+      "description": "TL2 LUT kernel presets.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "preset_3b",
-      "label": "3B Model Preset",
+      "id": "llamalutkernelstl1h",
+      "label": "Llama3 LUT Kernels TL1",
       "tier": "Core",
-      "path": "preset_kernels/bitnet_b1_58-3B",
-      "description": "Optimized configs for 3B parameter models.",
+      "path": "preset_kernels/Llama3-8B-1.58-100B-tokens/bitnet-lut-kernels-tl1.h",
+      "description": "TL1 LUT kernel presets for Llama3 tokens.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "run_inference",
-      "label": "CLI Inference Entry",
+      "id": "llamalutkernelstl2h",
+      "label": "Llama3 LUT Kernels TL2",
       "tier": "Core",
-      "path": "run_inference.py",
-      "description": "Command line interface for running local inference.",
+      "path": "preset_kernels/Llama3-8B-1.58-100B-tokens/bitnet-lut-kernels-tl2.h",
+      "description": "TL2 LUT kernel presets for Llama3 tokens.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "run_inference_server",
-      "label": "API Server Entry",
-      "tier": "Core",
-      "path": "run_inference_server.py",
-      "description": "HTTP API server for remote inference requests.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "gpu_generate",
-      "label": "GPU Generation Script",
-      "tier": "Core",
-      "path": "gpu/generate.py",
-      "description": "Direct GPU text generation utility.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "gpu_model",
+      "id": "gpumodelpy",
       "label": "GPU Model Wrapper",
       "tier": "Core",
       "path": "gpu/model.py",
-      "description": "Python wrapper managing GPU model state and loading.",
+      "description": "Python wrapper for GPU-based inference.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "convert_hf",
-      "label": "HF to GGUF Converter",
-      "tier": "Supporting",
-      "path": "utils/convert-hf-to-gguf-bitnet.py",
-      "description": "Converts HuggingFace checkpoints to GGUF format.",
+      "id": "gpugeneratepy",
+      "label": "GPU Kernel Preset Generator",
+      "tier": "Core",
+      "path": "gpu/generate.py",
+      "description": "Generates kernel presets/weights for 1-bit BitNet.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "convert_ms",
-      "label": "MS to GGUF Converter",
-      "tier": "Supporting",
-      "path": "utils/convert-ms-to-gguf-bitnet.py",
-      "description": "Converts MegaScale checkpoints to GGUF format.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "pack_weight",
-      "label": "Weight Packer",
-      "tier": "Supporting",
+      "id": "gpupackweightpy",
+      "label": "GPU Weight Packager",
+      "tier": "Core",
       "path": "gpu/pack_weight.py",
-      "description": "Compresses weights to 1.58-bit representation.",
+      "description": "Packages converted weights for GPU kernels.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "tokenizer_py",
-      "label": "Tokenizer Handler",
-      "tier": "Supporting",
+      "id": "gpuconvertcheckpointpy",
+      "label": "GPU Checkpoint Converter",
+      "tier": "Core",
+      "path": "gpu/convert_checkpoint.py",
+      "description": "Converts model checkpoints to 1-bit GGML format.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "gpuconvertsafetensorspy",
+      "label": "GPU Safetensors Converter",
+      "tier": "Core",
+      "path": "gpu/convert_safetensors.py",
+      "description": "Converts safetensors to GGML format.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "gputokenizerpy",
+      "label": "GPU Tokenizer",
+      "tier": "Core",
       "path": "gpu/tokenizer.py",
-      "description": "Manages vocabulary and tokenization logic.",
+      "description": "Tokenizer utilities for GPU path.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "codegen_tl1",
-      "label": "TL1 Code Generator",
-      "tier": "Supporting",
-      "path": "utils/codegen_tl1.py",
-      "description": "Generates optimized kernel code for Tensor Layout 1.",
+      "id": "gputokenizermodel",
+      "label": "GPU Tokenizer Model",
+      "tier": "Core",
+      "path": "gpu/tokenizer.model",
+      "description": "Tokenizer model binary.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "codegen_tl2",
-      "label": "TL2 Code Generator",
-      "tier": "Supporting",
-      "path": "utils/codegen_tl2.py",
-      "description": "Generates optimized kernel code for Tensor Layout 2.",
+      "id": "runinferencepy",
+      "label": "Run Inference Script",
+      "tier": "Core",
+      "path": "run_inference.py",
+      "description": "CLI entrypoint for inference.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "llama_cpp",
-      "label": "LLaMA.cpp Base",
-      "tier": "Supporting",
+      "id": "runinferenceserverpy",
+      "label": "Run Inference Server",
+      "tier": "Core",
+      "path": "run_inference_server.py",
+      "description": "Server wrapper for inference.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "thirdpartyllamacpp",
+      "label": "Llama.cpp Submodule",
+      "tier": "Core",
       "path": "3rdparty/llama.cpp",
-      "description": "Underlying GGML framework and inference base.",
+      "description": "3rd-party Llama C++ runtime.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "cmake_lists",
-      "label": "CMake Build Config",
-      "tier": "Dev",
+      "id": "srccmakeliststxt",
+      "label": "Source CMakeLists",
+      "tier": "Core",
+      "path": "src/CMakeLists.txt",
+      "description": "CMake configuration for source.",
+      "project": "microsoftBitNet"
+    },
+    {
+      "id": "cmakeliststxt",
+      "label": "Top-level CMakeLists",
+      "tier": "Core",
       "path": "CMakeLists.txt",
-      "description": "Root build system configuration.",
+      "description": "Root CMake configuration.",
       "project": "microsoftBitNet"
     },
     {
-      "id": "setup_env",
-      "label": "Environment Setup",
-      "tier": "Dev",
-      "path": "setup_env.py",
-      "description": "Initializes Python environment and dependencies.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "test_gemm",
-      "label": "GEMM Kernel Test",
-      "tier": "Dev",
-      "path": "utils/test_gemm_kernel.sh",
-      "description": "Shell script for testing GEMM kernel correctness.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "e2e_benchmark",
-      "label": "End-to-End Benchmark",
-      "tier": "Dev",
-      "path": "utils/e2e_benchmark.py",
-      "description": "Performance benchmarking suite.",
-      "project": "microsoftBitNet"
-    },
-    {
-      "id": "gpu_compile",
-      "label": "CUDA Compile Script",
-      "tier": "Dev",
-      "path": "gpu/bitnet_kernels/compile.sh",
-      "description": "Compiles CUDA kernels for the GPU backend.",
+      "id": "gpusetuppy",
+      "label": "GPU Setup Script",
+      "tier": "Core",
+      "path": "gpu/setup.py",
+      "description": "Packaging/setup utilities for GPU components.",
       "project": "microsoftBitNet"
     }
   ],
   "edges": [
     {
-      "source": "ggml_bitnet_lut",
-      "target": "ggml_bitnet_h",
-      "type": "IMPLEMENTS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "ggml_bitnet_mad",
-      "target": "ggml_bitnet_h",
-      "type": "IMPLEMENTS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "bitnet_kernels_cu",
-      "target": "bitnet_kernels_h",
-      "type": "IMPLEMENTS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "run_inference",
-      "target": "ggml_bitnet_h",
-      "type": "USES_API",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "run_inference_server",
-      "target": "ggml_bitnet_h",
-      "type": "USES_API",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "gpu_generate",
-      "target": "gpu_model",
-      "type": "CALLS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "gpu_model",
-      "target": "bitnet_kernels_h",
-      "type": "LOADS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "gpu_model",
-      "target": "preset_large",
-      "type": "CONFIGURES",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "gpu_model",
-      "target": "preset_llama3",
-      "type": "CONFIGURES",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "gpu_model",
-      "target": "preset_3b",
-      "type": "CONFIGURES",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "convert_hf",
-      "target": "pack_weight",
-      "type": "CALLS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "convert_ms",
-      "target": "pack_weight",
-      "type": "CALLS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "pack_weight",
-      "target": "llama_cpp",
+      "source": "ggmlbitnetlutcpp",
+      "target": "ggmlbitneth",
       "type": "DEPENDS_ON",
       "project": "microsoftBitNet"
     },
     {
-      "source": "gpu_model",
-      "target": "tokenizer_py",
-      "type": "USES",
+      "source": "ggmlbitnetmadcpp",
+      "target": "ggmlbitneth",
+      "type": "DEPENDS_ON",
       "project": "microsoftBitNet"
     },
     {
-      "source": "codegen_tl1",
-      "target": "gemm_config_h",
+      "source": "bitnetkernelscu",
+      "target": "bitnetkernelsh",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "bitnetkernelscu",
+      "target": "ggmlbitnetlutcpp",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "bitnetkernelscu",
+      "target": "ggmlbitnetmadcpp",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "bitnetlutkernelstl1h",
+      "target": "bitnetkernelsh",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "bitnetlutkernelstl2h",
+      "target": "bitnetkernelsh",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "llamalutkernelstl1h",
+      "target": "bitnetkernelsh",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "llamalutkernelstl1h",
+      "target": "ggmlbitneth",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "llamalutkernelstl2h",
+      "target": "bitnetkernelsh",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "llamalutkernelstl2h",
+      "target": "ggmlbitneth",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpugeneratepy",
+      "target": "bitnetlutkernelstl1h",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpugeneratepy",
+      "target": "bitnetlutkernelstl2h",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpugeneratepy",
+      "target": "llamalutkernelstl1h",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpugeneratepy",
+      "target": "llamalutkernelstl2h",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpumodelpy",
+      "target": "gpugeneratepy",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpumodelpy",
+      "target": "gpupackweightpy",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpumodelpy",
+      "target": "gpuconvertcheckpointpy",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpumodelpy",
+      "target": "gpuconvertsafetensorspy",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gpumodelpy",
+      "target": "gputokenizerpy",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "runinferencepy",
+      "target": "ggmlbitnetlutcpp",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "runinferencepy",
+      "target": "ggmlbitnetmadcpp",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "runinferencepy",
+      "target": "ggmlbitneth",
       "type": "READS",
       "project": "microsoftBitNet"
     },
     {
-      "source": "codegen_tl2",
-      "target": "gemm_config_h",
+      "source": "runinferenceserverpy",
+      "target": "runinferencepy",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "thirdpartyllamacpp",
+      "target": "srccmakeliststxt",
+      "type": "BUILDS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "srccmakeliststxt",
+      "target": "thirdpartyllamacpp",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "cmakeliststxt",
+      "target": "srccmakeliststxt",
+      "type": "DEPENDS_ON",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "docscodegenmd",
+      "target": "utilscodegentl1py",
       "type": "READS",
       "project": "microsoftBitNet"
     },
     {
-      "source": "ggml_bitnet_lut",
-      "target": "llama_cpp",
-      "type": "EXTENDS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "ggml_bitnet_mad",
-      "target": "llama_cpp",
-      "type": "EXTENDS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "cmake_lists",
-      "target": "ggml_bitnet_lut",
-      "type": "BUILDS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "cmake_lists",
-      "target": "ggml_bitnet_mad",
-      "type": "BUILDS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "gpu_compile",
-      "target": "bitnet_kernels_cu",
-      "type": "BUILDS",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "test_gemm",
-      "target": "bitnet_kernels_cu",
-      "type": "VALIDATES",
-      "project": "microsoftBitNet"
-    },
-    {
-      "source": "e2e_benchmark",
-      "target": "run_inference",
+      "source": "utilscodegentl1py",
+      "target": "docscodegenmd",
       "type": "CALLS",
       "project": "microsoftBitNet"
     },
     {
-      "source": "setup_env",
-      "target": "llama_cpp",
-      "type": "INITIALIZES",
+      "source": "utilscodegentl2py",
+      "target": "utilscodegentl1py",
+      "type": "CALLS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "docscodegenmd",
+      "target": "utilscodegentl2py",
+      "type": "READS",
+      "project": "microsoftBitNet"
+    },
+    {
+      "source": "gputestpy",
+      "target": "gpumodelpy",
+      "type": "READS",
       "project": "microsoftBitNet"
     }
   ]
