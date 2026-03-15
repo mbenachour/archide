@@ -95,6 +95,26 @@ class DiagramSaveRequest(BaseModel):
     project: str
     label: str | None = None
 
+class ImplementRequest(BaseModel):
+    project: str
+    hint: str | None = None
+
+class ConfirmRequest(BaseModel):
+    project: str
+
+# In-memory pending proposals store: project -> proposal
+pending_proposals: dict = {}
+
+@app.get("/api/index_status/{project}")
+async def index_status_endpoint(project: str):
+    from qdrant_client import QdrantClient
+    try:
+        client = QdrantClient(url="http://localhost:6334", prefer_grpc=True)
+        return {"indexed": client.collection_exists(collection_name=project)}
+    except Exception:
+        return {"indexed": False}
+
+
 @app.post("/api/index_code")
 async def index_endpoint(req: IndexRequest):
     import subprocess
@@ -201,6 +221,165 @@ async def diagram_save_endpoint(req: DiagramSaveRequest):
         return {"commit_hash": commit_hash, "branch": "diagramedits"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def _compute_diagram_diff(prev: dict, curr: dict) -> dict:
+    prev_node_ids = {n["id"] for n in prev.get("nodes", [])}
+    curr_node_ids = {n["id"] for n in curr.get("nodes", [])}
+    prev_edge_keys = {f"{e['source']}->{e['target']}" for e in prev.get("edges", [])}
+    curr_edge_keys = {f"{e['source']}->{e['target']}" for e in curr.get("edges", [])}
+    return {
+        "added_nodes":   [n for n in curr.get("nodes", []) if n["id"] not in prev_node_ids],
+        "removed_nodes": [n for n in prev.get("nodes", []) if n["id"] not in curr_node_ids],
+        "added_edges":   [e for e in curr.get("edges", []) if f"{e['source']}->{e['target']}" not in prev_edge_keys],
+        "removed_edges": [e for e in prev.get("edges", []) if f"{e['source']}->{e['target']}" not in curr_edge_keys],
+    }
+
+
+def _search_qdrant(project: str, queries: list[str], limit_per_query: int = 2) -> str:
+    from sentence_transformers import SentenceTransformer
+    from qdrant_client import QdrantClient
+    try:
+        model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        client = QdrantClient(url="http://localhost:6334", prefer_grpc=True)
+        snippets = []
+        for query in queries:
+            embeds = model.encode([query])
+            res = client.query_points(collection_name=project, query=list(embeds)[0], using="embedding", limit=limit_per_query).points
+            for r in res:
+                fname = r.payload.get("filename", "?")
+                code = r.payload.get("code", "")
+                snippets.append(f"--- {fname} ---\n{code}")
+        return "\n\n".join(snippets) if snippets else ""
+    except Exception as e:
+        return f"(Qdrant unavailable: {e})"
+
+
+@app.post("/api/diagram/implement")
+async def diagram_implement_endpoint(req: ImplementRequest):
+    diagram_path = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures", f"{req.project}.json")
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", req.project)
+
+    if not os.path.isdir(os.path.join(project_dir, ".git")):
+        raise HTTPException(status_code=404, detail=f"No git repo at projects/{req.project}. Clone it first.")
+
+    with open(diagram_path) as f:
+        current_diagram = json.load(f)
+
+    # Get previous diagram from the last diagramedits commit
+    prev_result = subprocess.run(
+        ["git", "show", "diagramedits:architecture.json"],
+        cwd=project_dir, capture_output=True, text=True
+    )
+    prev_diagram = json.loads(prev_result.stdout) if prev_result.returncode == 0 else {"nodes": [], "edges": []}
+
+    diff = _compute_diagram_diff(prev_diagram, current_diagram)
+
+    # Get the diagram commit hash for branch naming
+    hash_result = subprocess.run(
+        ["git", "rev-parse", "--short", "diagramedits"],
+        cwd=project_dir, capture_output=True, text=True
+    )
+    diagram_hash = hash_result.stdout.strip() if hash_result.returncode == 0 else "latest"
+
+    # Build branch name from changed node IDs
+    changed_ids = [n["id"] for n in diff["added_nodes"]] + [n["id"] for n in diff["removed_nodes"]]
+    slug = "-".join(changed_ids[:3]) if changed_ids else "diagram-changes"
+    import re as _re
+    slug = _re.sub(r'[^a-zA-Z0-9-]', '-', slug)
+    branch_name = f"impl/{slug}-{diagram_hash}"
+
+    # Search codebase for context around changed components
+    search_queries = [n.get("label", n["id"]) for n in diff["added_nodes"] + diff["removed_nodes"]]
+    search_queries += [f"{e['source']} to {e['target']}" for e in diff["added_edges"]]
+    code_context = _search_qdrant(req.project, search_queries[:4]) if search_queries else "(no changes detected)"
+
+    impl_agent = Agent(
+        name="Implementation Planner",
+        instructions=(
+            "You are a code implementation planner for software architecture changes. "
+            "Given a diagram diff and existing codebase snippets, produce a concrete file-level implementation plan. "
+            "Output ONLY a valid JSON array — no prose, no markdown fences. "
+            "Each element must have: "
+            "  path (string, relative to project root), "
+            "  action ('create' or 'modify'), "
+            "  content (complete file content as a string), "
+            "  summary (one sentence describing the change). "
+            "Match the coding style and conventions visible in the existing code snippets. "
+            "For 'modify' actions, write the full updated file content, not a diff."
+        ),
+        tools=[]
+    )
+
+    hint_line = f"\nUser focus hint: {req.hint}" if req.hint else ""
+    prompt = (
+        f"Project: {req.project}\n"
+        f"Diagram diff:\n{json.dumps(diff, indent=2)}\n\n"
+        f"Relevant existing code:\n{code_context}"
+        f"{hint_line}"
+    )
+    result = await Runner.run(impl_agent, prompt)
+
+    try:
+        files = json.loads(result.final_output)
+    except json.JSONDecodeError:
+        match = _re.search(r'\[.*\]', result.final_output, _re.DOTALL)
+        if match:
+            files = json.loads(match.group())
+        else:
+            raise HTTPException(status_code=500, detail="Agent did not return a valid JSON array")
+
+    proposal = {
+        "project": req.project,
+        "diagram_hash": diagram_hash,
+        "branch_name": branch_name,
+        "diff": diff,
+        "files": files,
+    }
+    pending_proposals[req.project] = proposal
+    return proposal
+
+
+@app.post("/api/diagram/confirm")
+async def diagram_confirm_endpoint(req: ConfirmRequest):
+    proposal = pending_proposals.get(req.project)
+    if not proposal:
+        raise HTTPException(status_code=404, detail="No pending proposal for this project.")
+
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", req.project)
+    branch = proposal["branch_name"]
+
+    def git(cmd):
+        return subprocess.run(["git"] + cmd, cwd=project_dir, capture_output=True, text=True, check=True)
+
+    git(["checkout", "-b", branch])
+
+    written = []
+    for op in proposal["files"]:
+        filepath = os.path.join(project_dir, op["path"])
+        dir_path = os.path.dirname(filepath)
+        if dir_path:
+            os.makedirs(dir_path, exist_ok=True)
+        with open(filepath, "w") as f:
+            f.write(op["content"])
+        written.append(op["path"])
+
+    git(["add", "."])
+    git(["commit", "-m", f"impl: {branch.removeprefix('impl/')}"])
+
+    commit_hash = subprocess.run(
+        ["git", "rev-parse", "--short", "HEAD"],
+        cwd=project_dir, capture_output=True, text=True
+    ).stdout.strip()
+
+    del pending_proposals[req.project]
+    return {"branch": branch, "commit_hash": commit_hash, "files_written": written}
+
+
+@app.post("/api/diagram/discard")
+async def diagram_discard_endpoint(req: ConfirmRequest):
+    pending_proposals.pop(req.project, None)
+    return {"status": "discarded"}
 
 
 if __name__ == "__main__":
