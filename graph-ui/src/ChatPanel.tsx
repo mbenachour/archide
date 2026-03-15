@@ -119,15 +119,31 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
     selectedProject: string | null;
     onDiagramUpdate: (graphData: any) => void;
 }) {
-    const [messages, setMessages] = useState<ChatMessage[]>([
-        { role: 'assistant', content: 'Hello! I am your Architecture Assistant. How can I help you design today?\n\nTip: use `/edit`, `/save`, or `/implement` to modify and version the diagram.' }
-    ]);
+    const WELCOME_MSG: ChatMessage = { role: 'assistant', content: 'Hello! I am your Architecture Assistant. How can I help you design today?\n\nTip: use `/edit`, `/save`, or `/implement` to modify and version the diagram.' };
+
+    const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MSG]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isIndexing, setIsIndexing] = useState(false);
     const [isIndexed, setIsIndexed] = useState<boolean | null>(null);
     const [applyingFor, setApplyingFor] = useState<string | null>(null);
+    const [sessionId, setSessionId] = useState<string>(() => {
+        const key = `session:${selectedProject ?? '__default'}`;
+        const existing = localStorage.getItem(key);
+        if (existing) return existing;
+        const id = crypto.randomUUID();
+        localStorage.setItem(key, id);
+        return id;
+    });
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const startNewSession = () => {
+        const key = `session:${selectedProject ?? '__default'}`;
+        const id = crypto.randomUUID();
+        localStorage.setItem(key, id);
+        setSessionId(id);
+        setMessages([WELCOME_MSG]);
+    };
 
     const activeCommand = parseCommand(input).command;
 
