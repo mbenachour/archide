@@ -201,7 +201,7 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
                 }]);
 
             } else {
-                const data = await post('/api/chat', { message: userMessage.content, project: selectedProject });
+                const data = await post('/api/chat', { message: userMessage.content, project: selectedProject, session_id: sessionId });
                 setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
             }
         } catch (error) {
