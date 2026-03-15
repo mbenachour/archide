@@ -256,28 +256,37 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
     return (
         <aside className="w-80 bg-slate-800 border-l border-slate-700 h-full flex flex-col shrink-0 relative z-20">
             {/* Header */}
-            <div className="p-4 border-b border-slate-700 bg-slate-800/80 backdrop-blur shrink-0 flex items-center justify-between">
-                <div>
+            <div className="p-4 border-b border-slate-700 bg-slate-800/80 backdrop-blur shrink-0">
+                <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-white">AI Agent</h2>
-                    <p className="text-xs text-slate-400 mt-0.5">Assistance with your diagram</p>
-                    {selectedProject && (
-                        <div className="mt-2 text-[10px] font-bold tracking-wider text-blue-400 uppercase border border-blue-500/30 bg-blue-500/10 px-2 py-1 rounded inline-block">
-                            {selectedProject}
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={startNewSession}
+                            title="Start a new conversation"
+                            className="text-xs text-slate-400 hover:text-white border border-slate-600 hover:border-slate-400 px-2 py-1 rounded-lg transition-colors font-bold"
+                        >
+                            New Chat
+                        </button>
+                        {selectedProject && (
+                            <button
+                                onClick={handleIndexCode}
+                                disabled={isIndexing || isIndexed === true}
+                                className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all text-white ${
+                                    isIndexed
+                                        ? 'bg-slate-600 opacity-60 cursor-not-allowed'
+                                        : 'bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50'
+                                }`}
+                            >
+                                {isIndexing ? 'Indexing...' : isIndexed ? 'Indexed ✓' : 'Index Code'}
+                            </button>
+                        )}
+                    </div>
                 </div>
+                <p className="text-xs text-slate-400 mt-0.5">Assistance with your diagram</p>
                 {selectedProject && (
-                    <button
-                        onClick={handleIndexCode}
-                        disabled={isIndexing || isIndexed === true}
-                        className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all text-white ${
-                            isIndexed
-                                ? 'bg-slate-600 opacity-60 cursor-not-allowed'
-                                : 'bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50'
-                        }`}
-                    >
-                        {isIndexing ? 'Indexing...' : isIndexed ? 'Indexed ✓' : 'Index Code'}
-                    </button>
+                    <div className="mt-2 text-[10px] font-bold tracking-wider text-blue-400 uppercase border border-blue-500/30 bg-blue-500/10 px-2 py-1 rounded inline-block">
+                        {selectedProject}
+                    </div>
                 )}
             </div>
 
