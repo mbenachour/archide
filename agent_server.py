@@ -17,7 +17,9 @@ if not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_API_TOKEN"):
 # openai-agents SDK as imported.
 import json
 import subprocess
-from agents import Agent, Runner, function_tool
+from agents import Agent, Runner, function_tool, SQLiteSession
+
+SESSIONS_DB = os.path.join(os.path.dirname(__file__), "sessions.db")
 
 app = FastAPI()
 
@@ -83,6 +85,7 @@ architect_agent = Agent(
 class ChatRequest(BaseModel):
     message: str
     project: str | None = None
+    session_id: str | None = None
 
 class IndexRequest(BaseModel):
     project: str
@@ -134,7 +137,8 @@ async def chat_endpoint(req: ChatRequest):
         # Note: If we need memory across turns, we would handle session/conversation_ids.
         # For simplicity, we just pass the latest message to the agent.
         prompt = f"[Context: The user is actively viewing the architecture for project '{req.project}']\n\nUser Question: {req.message}" if req.project else req.message
-        result = await Runner.run(architect_agent, prompt)
+        session = SQLiteSession(req.session_id, SESSIONS_DB) if req.session_id else None
+        result = await Runner.run(architect_agent, prompt, session=session)
         return {"response": result.final_output}
     except Exception as e:
         print(f"Error running agent: {e}")
