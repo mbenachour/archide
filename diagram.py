@@ -461,6 +461,7 @@ def build_json_output(graph_data: dict, repo_name: str) -> str:
         
     output = {
         "project": safe_name,
+        "original_repo": repo_name,
         "nodes": graph_data.get("nodes", []),
         "edges": graph_data.get("edges", [])
     }

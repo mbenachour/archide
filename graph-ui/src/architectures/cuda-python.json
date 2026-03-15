@@ -1,0 +1,240 @@
+{
+  "nodes": [
+    {
+      "id": "CCORE",
+      "label": "CUDA Core Bindings",
+      "tier": "Core",
+      "path": "cuda_core/cuda/core",
+      "description": "Core Python/Cython/C++ bindings to CUDA Runtime and Driver APIs; manages context, device, stream, memory, kernels, and runtime interactions.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "CPATHF",
+      "label": "CUDA PathFinder",
+      "tier": "Core",
+      "path": "cuda_pathfinder/cuda/pathfinder",
+      "description": "Environment discovery and library loading subsystem for CUDA assets (headers, binaries, libs); dynamic/static loading and platform-specific handling.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "PFINIT",
+      "label": "PathFinder Init",
+      "tier": "Supporting",
+      "path": "cuda_pathfinder/cuda/pathfinder/__init__.py",
+      "description": "Core initialization and packaging scaffolding for PathFinder.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "PFUENV",
+      "label": "PathFinder Utils Env Vars",
+      "tier": "Supporting",
+      "path": "cuda_pathfinder/cuda/pathfinder/_utils/env_vars.py",
+      "description": "Utilities to manage environment variables used during CUDA discovery and loading.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "PFDLCAT",
+      "label": "Dynamic Libs Descriptor Catalog",
+      "tier": "Supporting",
+      "path": "cuda_pathfinder/cuda/pathfinder/_dynamic_libs/descriptor_catalog.py",
+      "description": "Catalog of descriptors for NVIDIA dynamic libraries used at runtime.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "PFBITCODE",
+      "label": "Static Libs Bitcode Lib Finder",
+      "tier": "Supporting",
+      "path": "cuda_pathfinder/cuda/pathfinder/_static_libs/find_bitcode_lib.py",
+      "description": "Discoveres bitcode/static libraries for static linking scenarios.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "PFNVIDIAHEADERS",
+      "label": "NVIDIA Headers Finder",
+      "tier": "Supporting",
+      "path": "cuda_pathfinder/cuda/pathfinder/_headers/find_nvidia_headers.py",
+      "description": "Finds NVIDIA CUDA headers and related descriptor catalogs.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "PFSNVBIN",
+      "label": "NVIDIA Binaries Catalog",
+      "tier": "Supporting",
+      "path": "cuda_pathfinder/cuda/pathfinder/_binaries/supported_nvidia_binaries.py",
+      "description": "Catalog of NVIDIA binary utilities supported by the pathfinder.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "DOCS",
+      "label": "CUDA PathFinder Docs",
+      "tier": "Dev",
+      "path": "cuda_pathfinder/docs",
+      "description": "User and developer documentation for PathFinder and CUDA integration.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "TESTS",
+      "label": "CUDA PathFinder Tests",
+      "tier": "Dev",
+      "path": "cuda_pathfinder/tests",
+      "description": "Tests exercising the runtime discovery and loading logic.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "CORESETUP",
+      "label": "CUDA Core Setup",
+      "tier": "Dev",
+      "path": "cuda_core/setup.py",
+      "description": "Packaging and setup utilities for CUDA core bindings.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "CONFTST",
+      "label": "Conftest",
+      "tier": "Dev",
+      "path": "conftest.py",
+      "description": "Test fixture configuration and global test setup.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "README",
+      "label": "Readme",
+      "tier": "Dev",
+      "path": "README.md",
+      "description": "Project overview, usage notes, and repository information.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "AGENTS",
+      "label": "AGENTS Guide",
+      "tier": "Dev",
+      "path": "AGENTS.md",
+      "description": "Developer guide and governance information.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "Redis",
+      "label": "Redis Cache",
+      "tier": "Supporting",
+      "path": "redis",
+      "description": "In-memory data store used as a cache.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "CICD",
+      "label": "CI/CD Pipeline",
+      "tier": "DevOps",
+      "path": ".github/workflows",
+      "description": "Automated continuous integration and deployment workflows.",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "API",
+      "label": "API",
+      "tier": "Supporting",
+      "path": "api",
+      "description": "",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "block",
+      "label": "block",
+      "tier": "",
+      "path": "",
+      "description": "",
+      "project": "NVIDIAcuda-python"
+    }
+  ],
+  "edges": [
+    {
+      "source": "CCORE",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "PFINIT",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "PFUENV",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "PFDLCAT",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "PFBITCODE",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "PFNVIDIAHEADERS",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "PFSNVBIN",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "CORESETUP",
+      "target": "CCORE",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "DOCS",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "TESTS",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "CONFTST",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "README",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "AGENTS",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "API",
+      "target": "Redis",
+      "type": "USES_CACHE",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "Redis",
+      "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    }
+  ]
+}

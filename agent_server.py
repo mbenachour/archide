@@ -1,0 +1,206 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import asyncio
+import os
+from dotenv import load_dotenv
+
+# Force load the .env
+load_dotenv()
+
+if not os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_API_TOKEN"):
+    os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_TOKEN")
+
+# We only want to run the OpenAI agent if the user is using OpenAI.
+# For Ollama, the openai-agents package can technically work if configured correctly 
+# to hit a custom base URL, but for the scope of this task we will just rely on the 
+# openai-agents SDK as imported.
+import json
+import subprocess
+from agents import Agent, Runner, function_tool
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@function_tool
+def read_architecture_json(project: str) -> str:
+    """Read the full architecture graph JSON for a specific project to analyze its nodes, components, and edges."""
+    try:
+        path = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures", f"{project}.json")
+        with open(path, "r") as f:
+            # return minified json to save tokens
+            return json.dumps(json.load(f), separators=(',', ':'))
+    except Exception as e:
+        return f"Error reading architecture JSON: {e}"
+
+@function_tool
+def search_codebase(project: str, query: str) -> str:
+    """Use this to perform a semantic search across the actual indexed source code of a project. Use this when you need to see exactly how a function, class, or algorithm is logically implemented at the code level."""
+    from sentence_transformers import SentenceTransformer
+    from qdrant_client import QdrantClient
+    try:
+        model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        embeds = model.encode([query])
+        client = QdrantClient(url="http://localhost:6334", prefer_grpc=True)
+        # Suppress deprecation warning
+        res = client.query_points(collection_name=project, query=list(embeds)[0], using="embedding", limit=3).points
+        
+        output = []
+        for r in res:
+            filename = r.payload.get("filename", "Unknown")
+            start = r.payload.get("start", {}).get("line", "?")
+            end = r.payload.get("end", {}).get("line", "?")
+            code = r.payload.get("code", "")
+            output.append(f"--- {filename} (Lines: {start}-{end}) ---\n{code}\n")
+            
+        return "\n".join(output) if output else "No results found."
+    except Exception as e:
+        return f"Error searching codebase embeddings (has the user clicked 'Index Code' yet?): {e}"
+
+# Initialize the Agent
+architect_agent = Agent(
+    name="Architecture Assistant",
+    instructions=(
+        "You are an expert software architect assistant. "
+        "You help the user design systems, understand architectures, and make technical decisions. "
+        "Be concise and use modern best practices. "
+        "Use read_architecture_json FIRST to understand the high-level system topology, services, and how they connect. "
+        "Use search_codebase LATER to dive into deep code snippets and find exact function logic if the user asks for implementation details."
+    ),
+    tools=[read_architecture_json, search_codebase]
+)
+
+class ChatRequest(BaseModel):
+    message: str
+    project: str | None = None
+
+class IndexRequest(BaseModel):
+    project: str
+
+class DiagramEditRequest(BaseModel):
+    message: str
+    project: str
+
+class DiagramSaveRequest(BaseModel):
+    project: str
+    label: str | None = None
+
+@app.post("/api/index_code")
+async def index_endpoint(req: IndexRequest):
+    import subprocess
+    try:
+        res = subprocess.run(["python", "indexer.py", req.project], capture_output=True, text=True)
+        if res.returncode != 0:
+            raise Exception(res.stderr or res.stdout)
+        return {"status": "success"}
+    except Exception as e:
+        print(f"Error indexing: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/chat")
+async def chat_endpoint(req: ChatRequest):
+    try:
+        # We can simply run the agent with the user's message.
+        # Note: If we need memory across turns, we would handle session/conversation_ids.
+        # For simplicity, we just pass the latest message to the agent.
+        prompt = f"[Context: The user is actively viewing the architecture for project '{req.project}']\n\nUser Question: {req.message}" if req.project else req.message
+        result = await Runner.run(architect_agent, prompt)
+        return {"response": result.final_output}
+    except Exception as e:
+        print(f"Error running agent: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+def _git_save_diagram(project_dir: str, diagram_path: str, message: str) -> str:
+    import shutil
+    dest = os.path.join(project_dir, "architecture.json")
+    shutil.copy2(diagram_path, dest)
+
+    def git(cmd):
+        return subprocess.run(["git"] + cmd, cwd=project_dir, capture_output=True, text=True, check=True)
+
+    branches = subprocess.run(["git", "branch"], cwd=project_dir, capture_output=True, text=True).stdout
+    if "diagramedits" in branches:
+        git(["checkout", "diagramedits"])
+    else:
+        git(["checkout", "-b", "diagramedits"])
+
+    git(["add", "architecture.json"])
+    subprocess.run(["git", "commit", "-m", message], cwd=project_dir, capture_output=True, text=True)
+    result = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=project_dir, capture_output=True, text=True)
+    return result.stdout.strip()
+
+
+@app.post("/api/diagram/edit")
+async def diagram_edit_endpoint(req: DiagramEditRequest):
+    diagram_path = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures", f"{req.project}.json")
+    try:
+        with open(diagram_path, "r") as f:
+            current_diagram = json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Diagram not found: {e}")
+
+    edit_agent = Agent(
+        name="Diagram Editor",
+        instructions=(
+            "You are a diagram editor. You will receive the current architecture diagram JSON and an edit instruction. "
+            "Output ONLY a valid JSON object with 'nodes' and 'edges' arrays — no prose, no markdown fences, no explanation. "
+            "Preserve existing node IDs and structure where possible. Only make the requested changes."
+        ),
+        tools=[]
+    )
+
+    prompt = f"Current diagram:\n{json.dumps(current_diagram)}\n\nEdit instruction: {req.message}"
+    result = await Runner.run(edit_agent, prompt)
+
+    try:
+        new_diagram = json.loads(result.final_output)
+    except json.JSONDecodeError:
+        import re as _re
+        match = _re.search(r'\{.*\}', result.final_output, _re.DOTALL)
+        if match:
+            new_diagram = json.loads(match.group())
+        else:
+            raise HTTPException(status_code=500, detail="Agent did not return valid JSON")
+
+    with open(diagram_path, "w") as f:
+        json.dump(new_diagram, f, indent=2)
+
+    # Auto-save to diagramedits branch
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", req.project)
+    commit_hash = None
+    if os.path.isdir(os.path.join(project_dir, ".git")):
+        try:
+            commit_hash = _git_save_diagram(project_dir, diagram_path, f"auto-save: {req.message[:72]}")
+        except Exception as e:
+            print(f"Warning: auto-save git commit failed: {e}")
+
+    return {"diagram": new_diagram, "commit_hash": commit_hash}
+
+
+@app.post("/api/diagram/save")
+async def diagram_save_endpoint(req: DiagramSaveRequest):
+    diagram_path = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures", f"{req.project}.json")
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", req.project)
+
+    if not os.path.isdir(os.path.join(project_dir, ".git")):
+        raise HTTPException(status_code=404, detail=f"No git repo found at projects/{req.project}. Clone it first.")
+
+    label = req.label or f"diagram snapshot for {req.project}"
+    try:
+        commit_hash = _git_save_diagram(project_dir, diagram_path, label)
+        return {"commit_hash": commit_hash, "branch": "diagramedits"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+if __name__ == "__main__":
+    import uvicorn
+    # run on port 8123 to avoid conflicts
+    uvicorn.run(app, host="0.0.0.0", port=8833)

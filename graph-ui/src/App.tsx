@@ -17,6 +17,7 @@ import {
 import CustomNode from './CustomNode';
 import ContainerNode from './ContainerNode';
 import Sidebar from './Sidebar';
+import ChatPanel from './ChatPanel';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -83,21 +84,11 @@ function ArchitectureFlow() {
     }
   }, []);
 
-  // When a project is selected, load its graph
-  useEffect(() => {
-    if (!selectedProject) return;
-
-    const targetPath = Object.keys(architectureModules).find(p => p.includes(`${selectedProject}.json`));
-    if (!targetPath) return;
-
-    const data: any = architectureModules[targetPath];
-    const graphData = data.default || data;
-
+  const applyDiagramData = useCallback((graphData: any) => {
     if (!graphData.nodes || !graphData.edges) {
       console.error("Invalid graph data format:", graphData);
       return;
     }
-
     const initialNodes = graphData.nodes.map((node: any) => ({
       id: node.id,
       type: 'custom',
@@ -109,7 +100,6 @@ function ArchitectureFlow() {
       },
       position: { x: 0, y: 0 }
     }));
-
     const initialEdges = graphData.edges.map((edge: any) => ({
       id: `${edge.source}-${edge.type}-${edge.target}`,
       source: edge.source,
@@ -121,13 +111,19 @@ function ArchitectureFlow() {
       labelBgStyle: { fill: '#1e293b' },
       markerEnd: { type: MarkerType.ArrowClosed, color: '#94a3b8' }
     }));
-
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
-
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
+  }, [setNodes, setEdges]);
 
-  }, [selectedProject, setNodes, setEdges]);
+  // When a project is selected, load its graph
+  useEffect(() => {
+    if (!selectedProject) return;
+    const targetPath = Object.keys(architectureModules).find(p => p.includes(`${selectedProject}.json`));
+    if (!targetPath) return;
+    const data: any = architectureModules[targetPath];
+    applyDiagramData(data.default || data);
+  }, [selectedProject, applyDiagramData]);
 
   // Hooking up the ability to connect edges manually
   const onConnect = useCallback(
@@ -307,6 +303,7 @@ function ArchitectureFlow() {
 
         </ReactFlow>
       </div>
+      <ChatPanel selectedProject={selectedProject} onDiagramUpdate={applyDiagramData} />
     </div>
   );
 }
