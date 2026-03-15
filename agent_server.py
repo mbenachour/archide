@@ -45,6 +45,7 @@ def search_codebase(project: str, query: str) -> str:
     """Use this to perform a semantic search across the actual indexed source code of a project. Use this when you need to see exactly how a function, class, or algorithm is logically implemented at the code level."""
     from sentence_transformers import SentenceTransformer
     from qdrant_client import QdrantClient
+    print(f"[QDRANT] search_codebase called — project='{project}' query='{query}'")
     try:
         model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
         embeds = model.encode([query])
@@ -60,8 +61,10 @@ def search_codebase(project: str, query: str) -> str:
             code = r.payload.get("code", "")
             output.append(f"--- {filename} (Lines: {start}-{end}) ---\n{code}\n")
             
+        print(f"[QDRANT] returned {len(output)} result(s) for query='{query}'")
         return "\n".join(output) if output else "No results found."
     except Exception as e:
+        print(f"[QDRANT] error for query='{query}': {e}")
         return f"Error searching codebase embeddings (has the user clicked 'Index Code' yet?): {e}"
 
 # Initialize the Agent
