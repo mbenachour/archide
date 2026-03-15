@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export default function Sidebar() {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     const onDragStart = (event: React.DragEvent, nodeType: string, tier: string) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
