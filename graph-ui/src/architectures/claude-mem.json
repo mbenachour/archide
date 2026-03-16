@@ -1,6 +1,4 @@
 {
-  "project": "thedotmackclaude-mem",
-  "original_repo": "thedotmack/claude-mem",
   "nodes": [
     {
       "id": "MEMCOMP",
@@ -193,6 +191,14 @@
       "path": "external/redis",
       "description": "In-memory data store used for caching and fast access.",
       "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "POSTGRESSTORE",
+      "label": "PostgresStore",
+      "tier": "Core",
+      "path": "src/persistence/postgres",
+      "description": "PostgreSQL-backed persistence layer for durable memory and artifact storage.",
+      "project": "thedotmackclaude-mem"
     }
   ],
   "edges": [
@@ -284,6 +290,12 @@
       "source": "APISDK",
       "target": "Redis",
       "type": "USES_CACHE",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MEMCOMP",
+      "target": "POSTGRESSTORE",
+      "type": "WRITES",
       "project": "thedotmackclaude-mem"
     }
   ]

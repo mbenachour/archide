@@ -151,6 +151,14 @@
       "path": "browser/settings.py",
       "description": "Page to configure browser-related settings.",
       "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "CORESETUPCPU",
+      "label": "CUDA Core Setup (CPU)",
+      "tier": "Dev",
+      "path": "cuda_core/setup_cpu.py",
+      "description": "Packaging and setup utilities for CUDA core bindings targeting CPU fallback or simulation mode.",
+      "project": "NVIDIAcuda-python"
     }
   ],
   "edges": [
@@ -241,6 +249,12 @@
     {
       "source": "Redis",
       "target": "CPATHF",
+      "type": "DEPENDS_ON",
+      "project": "NVIDIAcuda-python"
+    },
+    {
+      "source": "CORESETUPCPU",
+      "target": "CCORE",
       "type": "DEPENDS_ON",
       "project": "NVIDIAcuda-python"
     }
