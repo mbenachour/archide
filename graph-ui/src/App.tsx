@@ -68,11 +68,19 @@ function ArchitectureFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<any>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
   const [projects, setProjects] = useState<string[]>([]);
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string | null>(
+    () => localStorage.getItem('selectedProject')
+  );
   const [showNewProject, setShowNewProject] = useState(false);
+  const [editingNode, setEditingNode] = useState<{ id: string; data: any } | null>(null);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
+
+  const setAndPersistProject = useCallback((slug: string) => {
+    localStorage.setItem('selectedProject', slug);
+    setSelectedProject(slug);
+  }, []);
 
   const loadProjects = useCallback(async (selectSlug?: string) => {
     try {
@@ -80,16 +88,18 @@ function ArchitectureFlow() {
       const data = await res.json();
       const list: string[] = data.architectures ?? [];
       setProjects(list);
+      const stored = localStorage.getItem('selectedProject');
       if (selectSlug && list.includes(selectSlug)) {
-        setSelectedProject(selectSlug);
-      } else if (list.length > 0 && !selectedProject) {
-        setSelectedProject(list[0]);
+        setAndPersistProject(selectSlug);
+      } else if (stored && list.includes(stored)) {
+        setSelectedProject(stored); // already in state, just ensure list is valid
+      } else if (list.length > 0) {
+        setAndPersistProject(list[0]);
       }
     } catch (e) {
       console.error('Failed to load architectures', e);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setAndPersistProject]);
 
   // Load available projects on mount
   useEffect(() => {
@@ -322,7 +332,7 @@ function ArchitectureFlow() {
                 <select
                   className="mt-1 w-full p-2 bg-slate-900 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-blue-500"
                   value={selectedProject || ''}
-                  onChange={(e) => setSelectedProject(e.target.value)}
+                  onChange={(e) => setAndPersistProject(e.target.value)}
                 >
                   {projects.map(p => (
                     <option key={p} value={p}>{p}</option>
