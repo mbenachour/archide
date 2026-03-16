@@ -3,9 +3,13 @@
   "complete": false,
   "missing_nodes": ["Redis"],
   "missing_edges": [
-    {"source": "API", "target": "Redis", "type": "USES_CACHE"}
+    {
+      "source": "APISDK",
+      "target": "Redis",
+      "type": "USES_CACHE"
+    }
   ],
-  "notes": "Architecture graph is empty (no nodes/edges). Manifest files show only Python package requirements for llama.cpp and do not define services, databases, or environment configurations (no .env references or docker-compose definitions). Redis (a common DB/cache) is therefore missing, along with the API -> Redis usage edge that would indicate a caching layer."
+  "notes": "The graph defines a SQLite-backed SNAPSHOTSTORE and in-code components for memory management, but there is no external Redis (or similar) cache/db service defined. The manifests do not include any docker-compose.yml or .env definitions to describe such services or their configuration. To align the architecture, either introduce Redis (or another DB/cache) as a service in docker-compose and reflect it in the graph, or adjust the architecture to use only the SQLite-based persistence and update the manifests accordingly."
 }
 
 === CLEANED ===
@@ -13,7 +17,11 @@
   "complete": false,
   "missing_nodes": ["Redis"],
   "missing_edges": [
-    {"source": "API", "target": "Redis", "type": "USES_CACHE"}
+    {
+      "source": "APISDK",
+      "target": "Redis",
+      "type": "USES_CACHE"
+    }
   ],
-  "notes": "Architecture graph is empty (no nodes/edges). Manifest files show only Python package requirements for llama.cpp and do not define services, databases, or environment configurations (no .env references or docker-compose definitions). Redis (a common DB/cache) is therefore missing, along with the API -> Redis usage edge that would indicate a caching layer."
+  "notes": "The graph defines a SQLite-backed SNAPSHOTSTORE and in-code components for memory management, but there is no external Redis (or similar) cache/db service defined. The manifests do not include any docker-compose.yml or .env definitions to describe such services or their configuration. To align the architecture, either introduce Redis (or another DB/cache) as a service in docker-compose and reflect it in the graph, or adjust the architecture to use only the SQLite-based persistence and update the manifests accordingly."
 }

@@ -1,4 +1,51 @@
 === RAW ===
-
+{
+  "MemoryCompressionEngine": "openclaw/src",
+  "SnapshotStore": "tests/sqlite",
+  "EmbeddingVectorStore": "tests/worker/search/strategies/chroma-search-strategy.test.ts",
+  "TranscriptTimeline & ContextCache": "tests/shared/timeline-formatting.test.ts",
+  "MemoryRecallEngine / RetrievalPipeline": "tests/worker/search/search-orchestrator.test.ts",
+  "RetentionPolicy & Eviction": "tests/infrastructure/health-monitor.test.ts",
+  "MCPAdapter / Runtime orchestration": "plugin/",
+  "API Surface / SDK exports": "openclaw/src/index.ts",
+  "Plugin integration & Modes": "plugin/modes",
+  "Logger & HealthMonitor": "tests/infrastructure/health-monitor.test.ts",
+  "ProcessManager / Worker orchestration": "tests/worker/process-registry.test.ts",
+  "Cache Layer & filesystem utilities": "tests/utils",
+  "Configuration & Defaults manager": "tests/shared/settings-defaults-manager.test.ts",
+  "SQLite migrations/utilities used by tests": "tests/services/sqlite/migration-runner.test.ts",
+  "Plugin infrastructure & mode definitions": "plugin/modes",
+  "Scripts: build-hooks.js": "scripts/build-hooks.js",
+  "Worker service CLI (plugin/scripts/worker-service.cjs)": "plugin/scripts/worker-service.cjs",
+  "Marketplace sync & release scripts": "scripts/sync-marketplace.cjs",
+  "Test runner (bun) and tests under tests/": "tests/",
+  "Translation tooling (translate-readme, translate:all)": "cursor-hooks/README.md",
+  "Changelog generation (scripts/generate-changelog.js)": "scripts/generate-changelog.js",
+  "Build binaries script (scripts/build-worker-binary.js)": "scripts/build-worker-binary.js"
+}
 
 === CLEANED ===
+{
+  "MemoryCompressionEngine": "openclaw/src",
+  "SnapshotStore": "tests/sqlite",
+  "EmbeddingVectorStore": "tests/worker/search/strategies/chroma-search-strategy.test.ts",
+  "TranscriptTimeline & ContextCache": "tests/shared/timeline-formatting.test.ts",
+  "MemoryRecallEngine / RetrievalPipeline": "tests/worker/search/search-orchestrator.test.ts",
+  "RetentionPolicy & Eviction": "tests/infrastructure/health-monitor.test.ts",
+  "MCPAdapter / Runtime orchestration": "plugin/",
+  "API Surface / SDK exports": "openclaw/src/index.ts",
+  "Plugin integration & Modes": "plugin/modes",
+  "Logger & HealthMonitor": "tests/infrastructure/health-monitor.test.ts",
+  "ProcessManager / Worker orchestration": "tests/worker/process-registry.test.ts",
+  "Cache Layer & filesystem utilities": "tests/utils",
+  "Configuration & Defaults manager": "tests/shared/settings-defaults-manager.test.ts",
+  "SQLite migrations/utilities used by tests": "tests/services/sqlite/migration-runner.test.ts",
+  "Plugin infrastructure & mode definitions": "plugin/modes",
+  "Scripts: build-hooks.js": "scripts/build-hooks.js",
+  "Worker service CLI (plugin/scripts/worker-service.cjs)": "plugin/scripts/worker-service.cjs",
+  "Marketplace sync & release scripts": "scripts/sync-marketplace.cjs",
+  "Test runner (bun) and tests under tests/": "tests/",
+  "Translation tooling (translate-readme, translate:all)": "cursor-hooks/README.md",
+  "Changelog generation (scripts/generate-changelog.js)": "scripts/generate-changelog.js",
+  "Build binaries script (scripts/build-worker-binary.js)": "scripts/build-worker-binary.js"
+}
