@@ -18,14 +18,12 @@ import CustomNode from './CustomNode';
 import ContainerNode from './ContainerNode';
 import Sidebar from './Sidebar';
 import ChatPanel from './ChatPanel';
+import NewProjectModal from './NewProjectModal';
 
 const nodeTypes = {
   custom: CustomNode,
   container: ContainerNode,
 };
-
-// Use Vite's Glob Import to dynamically load all JSON files in the architectures folder
-const architectureModules = import.meta.glob('../src/architectures/*.json', { eager: true });
 
 const getLayoutedElements = (nodes: any[], edges: any[], direction = 'TB') => {
   const dagreGraph = new dagre.graphlib.Graph();
@@ -63,26 +61,39 @@ const getLayoutedElements = (nodes: any[], edges: any[], direction = 'TB') => {
 let idCounter = 0;
 const getId = () => `dndnode_${idCounter++}`;
 
+const API = 'http://localhost:8833';
+
 function ArchitectureFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState<any>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<any>([]);
   const [projects, setProjects] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [showNewProject, setShowNewProject] = useState(false);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
 
+  const loadProjects = useCallback(async (selectSlug?: string) => {
+    try {
+      const res = await fetch(`${API}/api/architectures`);
+      const data = await res.json();
+      const list: string[] = data.architectures ?? [];
+      setProjects(list);
+      if (selectSlug && list.includes(selectSlug)) {
+        setSelectedProject(selectSlug);
+      } else if (list.length > 0 && !selectedProject) {
+        setSelectedProject(list[0]);
+      }
+    } catch (e) {
+      console.error('Failed to load architectures', e);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Load available projects on mount
   useEffect(() => {
-    const availableProjects = Object.keys(architectureModules).map(path => {
-      return path.split('/').pop()?.replace('.json', '') || 'unknown';
-    });
-
-    setProjects(availableProjects);
-    if (availableProjects.length > 0) {
-      setSelectedProject(availableProjects[0]);
-    }
-  }, []);
+    loadProjects();
+  }, [loadProjects]);
 
   const applyDiagramData = useCallback((graphData: any) => {
     if (!graphData.nodes || !graphData.edges) {
@@ -119,10 +130,10 @@ function ArchitectureFlow() {
   // When a project is selected, load its graph
   useEffect(() => {
     if (!selectedProject) return;
-    const targetPath = Object.keys(architectureModules).find(p => p.includes(`${selectedProject}.json`));
-    if (!targetPath) return;
-    const data: any = architectureModules[targetPath];
-    applyDiagramData(data.default || data);
+    fetch(`${API}/api/architectures/${selectedProject}`)
+      .then(r => r.json())
+      .then(data => applyDiagramData(data))
+      .catch(e => console.error('Failed to load diagram', e));
   }, [selectedProject, applyDiagramData]);
 
   // Hooking up the ability to connect edges manually
@@ -255,20 +266,14 @@ function ArchitectureFlow() {
     [getIntersectingNodes, setNodes]
   );
 
-  if (projects.length === 0) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center text-white bg-slate-900 flex-1">
-        <h1 className="text-3xl font-bold mb-4">No architectures found</h1>
-        <p className="text-gray-400">Run the Python script first to generate some JSON graphs.</p>
-        <code className="mt-4 p-4 bg-black rounded text-green-400">
-          python diagram.py vercel/next.js --out graph-ui/src/architectures/nextjs.json
-        </code>
-      </div>
-    );
-  }
-
   return (
     <div className="h-screen flex flex-row w-screen bg-slate-900 overflow-hidden">
+      {showNewProject && (
+        <NewProjectModal
+          onClose={() => setShowNewProject(false)}
+          onProjectCreated={(slug) => loadProjects(slug)}
+        />
+      )}
       <Sidebar />
       <div className="flex-1 h-full" ref={reactFlowWrapper}>
         <ReactFlow
@@ -289,16 +294,28 @@ function ArchitectureFlow() {
 
           <Panel position="top-left" className="bg-slate-800 text-white p-4 rounded-xl shadow-xl border border-slate-700 w-80">
             <h1 className="text-xl font-bold mb-2">Architectures</h1>
-            <label className="text-xs uppercase font-bold text-gray-400 tracking-wider">Select Project</label>
-            <select
-              className="mt-1 w-full p-2 bg-slate-900 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-blue-500"
-              value={selectedProject || ''}
-              onChange={(e) => setSelectedProject(e.target.value)}
+            {projects.length === 0 ? (
+              <p className="text-slate-400 text-xs mb-3">No projects yet. Add one to get started.</p>
+            ) : (
+              <>
+                <label className="text-xs uppercase font-bold text-gray-400 tracking-wider">Select Project</label>
+                <select
+                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-blue-500"
+                  value={selectedProject || ''}
+                  onChange={(e) => setSelectedProject(e.target.value)}
+                >
+                  {projects.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </>
+            )}
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="mt-3 w-full py-1.5 text-xs font-bold bg-slate-700 hover:bg-blue-600 border border-slate-600 hover:border-blue-500 text-slate-200 rounded-lg transition-colors"
             >
-              {projects.map(p => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
+              + New Project
+            </button>
           </Panel>
 
         </ReactFlow>
