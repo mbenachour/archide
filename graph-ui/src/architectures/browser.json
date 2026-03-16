@@ -1,0 +1,504 @@
+{
+  "nodes": [
+    {
+      "id": "CDPZig",
+      "label": "CDP Core Zig",
+      "tier": "Core",
+      "path": "src/cdp/cdp.zig",
+      "description": "central CDP protocol glue",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "CDPNode",
+      "label": "CDP Node",
+      "tier": "Core",
+      "path": "src/cdp/Node.zig",
+      "description": "CDP node representations",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "CDPAXNode",
+      "label": "CDP AXNode",
+      "tier": "Core",
+      "path": "src/cdp/AXNode.zig",
+      "description": "CDP AXNode representations",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "CDPDomains",
+      "label": "CDP Domains",
+      "tier": "Core",
+      "path": "src/cdp/domains/*",
+      "description": "CDP domain implementations",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "BrowserZig",
+      "label": "Browser Zig",
+      "tier": "Core",
+      "path": "src/browser/Browser.zig",
+      "description": "core browser runtime container",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "PageZig",
+      "label": "Page Zig",
+      "tier": "Core",
+      "path": "src/browser/Page.zig",
+      "description": "page lifecycle and rendering context",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "ScriptManager",
+      "label": "Script Manager",
+      "tier": "Core",
+      "path": "src/browser/ScriptManager.zig",
+      "description": "JavaScript execution and bridge",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "SessionZig",
+      "label": "Session Zig",
+      "tier": "Core",
+      "path": "src/browser/Session.zig",
+      "description": "user/session state and isolation",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "EventManager",
+      "label": "Event Manager",
+      "tier": "Core",
+      "path": "src/browser/EventManager.zig",
+      "description": "event routing",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "HttpClient",
+      "label": "Http Client",
+      "tier": "Core",
+      "path": "src/browser/HttpClient.zig",
+      "description": "network fetching",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "Redis",
+      "label": "Redis",
+      "tier": "Supporting",
+      "path": "external/Redis",
+      "description": "in-memory data store used as a cache and message broker",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "URLZig",
+      "label": "URL Zig",
+      "tier": "Core",
+      "path": "src/browser/URL.zig",
+      "description": "URL handling",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MCPServerZig",
+      "label": "MCP Server Zig",
+      "tier": "Core",
+      "path": "src/mcp/Server.zig",
+      "description": "MCP server coordinating messages",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MCPProtocol",
+      "label": "MCP Protocol",
+      "tier": "Core",
+      "path": "src/mcp/protocol.zig",
+      "description": "MCP wire protocol",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MCPRouter",
+      "label": "MCP Router",
+      "tier": "Core",
+      "path": "src/mcp/router.zig",
+      "description": "routing MCP messages",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MCPResources",
+      "label": "MCP Resources",
+      "tier": "Core",
+      "path": "src/mcp/resources.zig",
+      "description": "resource management for MCP",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MCPTools",
+      "label": "MCP Tools",
+      "tier": "Core",
+      "path": "src/mcp/tools.zig",
+      "description": "utility helpers for MCP",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "ServerZig",
+      "label": "Server Zig",
+      "tier": "Core",
+      "path": "src/Server.zig",
+      "description": "HTTP/CDP server surface",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MainZig",
+      "label": "Main Zig",
+      "tier": "Core",
+      "path": "src/main.zig",
+      "description": "application entrypoint and bootstrap",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "HTML5ever",
+      "label": "HTML5ever",
+      "tier": "Core",
+      "path": "src/html5ever/",
+      "description": "embedded HTML5 parser integration",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "NetworkRuntime",
+      "label": "Network Runtime",
+      "tier": "Core",
+      "path": "src/network/Runtime.zig",
+      "description": "runtime networking orchestration",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "NetworkHttp",
+      "label": "Network Http",
+      "tier": "Core",
+      "path": "src/network/http.zig",
+      "description": "HTTP client/server utilities",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "NetworkWebsocket",
+      "label": "Network Websocket",
+      "tier": "Core",
+      "path": "src/network/websocket.zig",
+      "description": "WebSocket transport and protocol glue",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "AppZig",
+      "label": "App Zig",
+      "tier": "Supporting",
+      "path": "src/App.zig",
+      "description": "application-level orchestration",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "NotificationZig",
+      "label": "Notification Zig",
+      "tier": "Supporting",
+      "path": "src/Notification.zig",
+      "description": "notification subsystem",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "CrashHandlerZig",
+      "label": "Crash Handler Zig",
+      "tier": "Core",
+      "path": "src/crash_handler.zig",
+      "description": "crash reporting hooks",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "CryptoZig",
+      "label": "Crypto Zig",
+      "tier": "Core",
+      "path": "src/crypto.zig",
+      "description": "foundational crypto utilities",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "DatetimeZig",
+      "label": "Datetime Zig",
+      "tier": "Core",
+      "path": "src/datetime.zig",
+      "description": "time utilities",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "StringZig",
+      "label": "String Zig",
+      "tier": "Core",
+      "path": "src/string.zig",
+      "description": "string helpers",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "IdZig",
+      "label": "Id Zig",
+      "tier": "Core",
+      "path": "src/id.zig",
+      "description": "ID generation",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "ArenaPoolZig",
+      "label": "ArenaPool Zig",
+      "tier": "Core",
+      "path": "src/ArenaPool.zig",
+      "description": "memory allocator-friendly data structures",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "SlabZig",
+      "label": "Slab Zig",
+      "tier": "Core",
+      "path": "src/slab.zig",
+      "description": "memory slab allocator structures",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "LogZig",
+      "label": "Log Zig",
+      "tier": "Core",
+      "path": "src/log.zig",
+      "description": "logging framework",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "TestHTTPServerZig",
+      "label": "Test HTTP Server Zig",
+      "tier": "Supporting",
+      "path": "src/TestHTTPServer.zig",
+      "description": "test HTTP server",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "ConfigZig",
+      "label": "Config Zig",
+      "tier": "Supporting",
+      "path": "src/Config.zig",
+      "description": "configuration system",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "SighandlerZig",
+      "label": "Signal Handler Zig",
+      "tier": "Supporting",
+      "path": "src/Sighandler.zig",
+      "description": "signal handling",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MainLegacyTestZig",
+      "label": "Main Legacy Test Zig",
+      "tier": "Dev",
+      "path": "src/main_legacy_test.zig",
+      "description": "legacy test harness",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "MainSnapshotCreatorZig",
+      "label": "Main Snapshot Creator Zig",
+      "tier": "Dev",
+      "path": "src/main_snapshot_creator.zig",
+      "description": "snapshot creation tool",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "TestRunnerZig",
+      "label": "Test Runner Zig",
+      "tier": "Dev",
+      "path": "src/test_runner.zig",
+      "description": "test harness",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "TestingZig",
+      "label": "Testing Zig",
+      "tier": "Dev",
+      "path": "src/testing.zig",
+      "description": "testing utilities",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "BuildZig",
+      "label": "Build Zig",
+      "tier": "Dev",
+      "path": "build.zig",
+      "description": "build configuration",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "id": "HistoryManager",
+      "label": "History Manager",
+      "tier": "Core",
+      "path": "src/browser/HistoryManager.zig",
+      "description": "browser history management",
+      "project": "lightpanda-iobrowser"
+    }
+  ],
+  "edges": [
+    {
+      "source": "CDPZig",
+      "target": "CDPNode",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "CDPZig",
+      "target": "CDPAXNode",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "CDPZig",
+      "target": "CDPDomains",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "BrowserZig",
+      "target": "CDPZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "PageZig",
+      "target": "BrowserZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "ScriptManager",
+      "target": "BrowserZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "SessionZig",
+      "target": "BrowserZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "EventManager",
+      "target": "ScriptManager",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "HttpClient",
+      "target": "URLZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "HttpClient",
+      "target": "NetworkRuntime",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MCPServerZig",
+      "target": "MCPProtocol",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MCPServerZig",
+      "target": "MCPRouter",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MCPServerZig",
+      "target": "MCPResources",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MCPServerZig",
+      "target": "MCPTools",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "ServerZig",
+      "target": "MCPServerZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MainZig",
+      "target": "ServerZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "BrowserZig",
+      "target": "HTML5ever",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "NetworkRuntime",
+      "target": "NetworkHttp",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "NetworkRuntime",
+      "target": "NetworkWebsocket",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MainZig",
+      "target": "ConfigZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MainZig",
+      "target": "CrashHandlerZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "TestHTTPServerZig",
+      "target": "NetworkRuntime",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "AppZig",
+      "target": "NotificationZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "ConfigZig",
+      "target": "CryptoZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "MainZig",
+      "target": "SighandlerZig",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "HttpClient",
+      "target": "Redis",
+      "type": "USES_CACHE",
+      "project": "lightpanda-iobrowser"
+    },
+    {
+      "source": "BrowserZig",
+      "target": "HistoryManager",
+      "type": "DEPENDS_ON",
+      "project": "lightpanda-iobrowser"
+    }
+  ]
+}

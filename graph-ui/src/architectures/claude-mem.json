@@ -1,0 +1,290 @@
+{
+  "project": "thedotmackclaude-mem",
+  "original_repo": "thedotmack/claude-mem",
+  "nodes": [
+    {
+      "id": "MEMCOMP",
+      "label": "MemoryCompressionEngine",
+      "tier": "Core",
+      "path": "openclaw/src",
+      "description": "Ingests transcripts, compresses and serializes into compact memory units; metadata extraction and preparation for persistence.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "SNAPSHOTSTORE",
+      "label": "SnapshotStore",
+      "tier": "Core",
+      "path": "tests/sqlite",
+      "description": "SQLite-backed persistence layer for memory snapshots and artifacts with caching and scheduling.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "EMBEDDINGVECTORSTORE",
+      "label": "EmbeddingVectorStore",
+      "tier": "Core",
+      "path": "tests/worker/search/strategies/chroma-search-strategy.test.ts",
+      "description": "Chroma-based vector store for embeddings and fast semantic recall.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "TRANSCRIPTTIMELINE",
+      "label": "TranscriptTimeline",
+      "tier": "Core",
+      "path": "tests/shared/timeline-formatting.test.ts",
+      "description": "Context management for transcripts and token-aware formatting.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "MEMORYRECALLENGINE",
+      "label": "MemoryRecallEngine",
+      "tier": "Core",
+      "path": "tests/worker/search/search-orchestrator.test.ts",
+      "description": "Retrieval pipeline for recall: fetch, decompress, and reassemble memory context.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "RETENTIONPOLICY",
+      "label": "RetentionPolicy",
+      "tier": "Core",
+      "path": "tests/infrastructure/health-monitor.test.ts",
+      "description": "Budget management and eviction policies for memory and snapshots.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "MCPADAPTER",
+      "label": "MCPAdapter",
+      "tier": "Core",
+      "path": "plugin/",
+      "description": "Runtime orchestration adapter bridging with Claude agent runtime.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "APISDK",
+      "label": "APISurfaceSDK",
+      "tier": "Core",
+      "path": "openclaw/src/index.ts",
+      "description": "Exposed API surface and SDK exports to enable integration.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "PLUGINMODES",
+      "label": "PluginModes",
+      "tier": "Core",
+      "path": "plugin/modes",
+      "description": "Plugin integration points and modes definitions.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "LOGGER",
+      "label": "Logger",
+      "tier": "Supporting",
+      "path": "tests/infrastructure/health-monitor.test.ts",
+      "description": "Logging and observability adapter for runtime health and events.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "HEALTHMONITOR",
+      "label": "HealthMonitor",
+      "tier": "Supporting",
+      "path": "tests/infrastructure/health-monitor.test.ts",
+      "description": "Health monitoring hooks and status aggregation across components.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "PROCESSMANAGER",
+      "label": "ProcessManager",
+      "tier": "Supporting",
+      "path": "tests/worker/process-registry.test.ts",
+      "description": "Worker orchestration and background task management.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "CACHELAYER",
+      "label": "CacheLayer",
+      "tier": "Supporting",
+      "path": "tests/utils",
+      "description": "Cache and filesystem utilities for fast local access.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "CONFIGMANAGER",
+      "label": "ConfigurationManager",
+      "tier": "Supporting",
+      "path": "tests/shared/settings-defaults-manager.test.ts",
+      "description": "Defaults manager and runtime feature flags.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "SQLITEMIGRATIONS",
+      "label": "SQLiteMigrations",
+      "tier": "Supporting",
+      "path": "tests/services/sqlite/migration-runner.test.ts",
+      "description": "SQLite migrations and utilities used by tests.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "PLUGININFRA",
+      "label": "PluginInfrastructure",
+      "tier": "Supporting",
+      "path": "plugin/modes",
+      "description": "Plugin infrastructure and mode definitions.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "BUILDHOOKS",
+      "label": "BuildHooks",
+      "tier": "Dev",
+      "path": "scripts/build-hooks.js",
+      "description": "Build-time hooks and tooling used during development.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "WORKERSERVICECLI",
+      "label": "WorkerServiceCLI",
+      "tier": "Dev",
+      "path": "plugin/scripts/worker-service.cjs",
+      "description": "CLI to manage worker services.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "MARKETPLACESCRIPTS",
+      "label": "MarketplaceScripts",
+      "tier": "Dev",
+      "path": "scripts/sync-marketplace.cjs",
+      "description": "Marketplace scripts for distribution and updates.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "TESTRUNNER",
+      "label": "TestRunner",
+      "tier": "Dev",
+      "path": "tests/",
+      "description": "Test runner (bun) and tests used for QA.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "TRANSLATIONTOOLING",
+      "label": "TranslationTooling",
+      "tier": "Dev",
+      "path": "cursor-hooks/README.md",
+      "description": "Translation tooling and documentation generation utilities.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "CHANGELOGSCRIPT",
+      "label": "ChangelogScript",
+      "tier": "Dev",
+      "path": "scripts/generate-changelog.js",
+      "description": "Changelog generation script.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "BUILDBINARY",
+      "label": "BuildBinary",
+      "tier": "Dev",
+      "path": "scripts/build-worker-binary.js",
+      "description": "Build binaries script for worker binaries.",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "id": "Redis",
+      "label": "Redis",
+      "tier": "Supporting",
+      "path": "external/redis",
+      "description": "In-memory data store used for caching and fast access.",
+      "project": "thedotmackclaude-mem"
+    }
+  ],
+  "edges": [
+    {
+      "source": "MEMCOMP",
+      "target": "SNAPSHOTSTORE",
+      "type": "WRITES",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MEMCOMP",
+      "target": "EMBEDDINGVECTORSTORE",
+      "type": "WRITES",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "TRANSCRIPTTIMELINE",
+      "target": "MEMCOMP",
+      "type": "READS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MEMORYRECALLENGINE",
+      "target": "SNAPSHOTSTORE",
+      "type": "READS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MEMORYRECALLENGINE",
+      "target": "EMBEDDINGVECTORSTORE",
+      "type": "READS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "EMBEDDINGVECTORSTORE",
+      "target": "SNAPSHOTSTORE",
+      "type": "WRITES",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MCPADAPTER",
+      "target": "APISDK",
+      "type": "CALLS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "APISDK",
+      "target": "PLUGINMODES",
+      "type": "DEPENDS_ON",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MCPADAPTER",
+      "target": "PROCESSMANAGER",
+      "type": "CALLS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "PROCESSMANAGER",
+      "target": "WORKERSERVICECLI",
+      "type": "DEPENDS_ON",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "PLUGININFRA",
+      "target": "PLUGINMODES",
+      "type": "DEPENDS_ON",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MEMCOMP",
+      "target": "LOGGER",
+      "type": "CALLS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "MEMORYRECALLENGINE",
+      "target": "HEALTHMONITOR",
+      "type": "CALLS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "PROCESSMANAGER",
+      "target": "HEALTHMONITOR",
+      "type": "CALLS",
+      "project": "thedotmackclaude-mem"
+    },
+    {
+      "source": "APISDK",
+      "target": "Redis",
+      "type": "USES_CACHE",
+      "project": "thedotmackclaude-mem"
+    }
+  ]
+}
