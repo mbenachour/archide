@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import asyncio
 import os
@@ -384,6 +385,102 @@ async def diagram_confirm_endpoint(req: ConfirmRequest):
 async def diagram_discard_endpoint(req: ConfirmRequest):
     pending_proposals.pop(req.project, None)
     return {"status": "discarded"}
+
+
+# ── New Project ──────────────────────────────────────────────────────────────
+
+ARCHITECTURES_DIR = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures")
+
+# Track running new-project subprocesses: project_slug -> process
+_new_project_procs: dict[str, subprocess.Popen] = {}
+
+
+@app.get("/api/architectures")
+async def list_architectures():
+    try:
+        names = [
+            f[:-5]  # strip .json
+            for f in os.listdir(ARCHITECTURES_DIR)
+            if f.endswith(".json")
+        ]
+        return {"architectures": sorted(names)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/architectures/{project}")
+async def get_architecture(project: str):
+    path = os.path.join(ARCHITECTURES_DIR, f"{project}.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail=f"No architecture found for '{project}'")
+    with open(path) as f:
+        return json.load(f)
+
+
+class NewProjectRequest(BaseModel):
+    repo: str
+    detail: bool = False
+    skip_validation: bool = False
+    debug: bool = False
+
+
+@app.get("/api/new_project/stream")
+async def new_project_stream(
+    repo: str,
+    detail: bool = False,
+    skip_validation: bool = False,
+    debug: bool = False,
+):
+    # Derive output project slug from repo name (last path component, sanitised)
+    slug = repo.split("/")[-1].lower()
+    out_path = os.path.join(ARCHITECTURES_DIR, f"{slug}.json")
+
+    cmd = ["python", os.path.join(os.path.dirname(__file__), "diagram.py"), repo, "--out", out_path]
+    if detail:
+        cmd += ["--detail"]
+    if skip_validation:
+        cmd += ["--skip-validation"]
+    if debug:
+        cmd += ["--debug"]
+
+    async def event_stream():
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        _new_project_procs[slug] = proc
+
+        try:
+            for line in proc.stdout:
+                line = line.rstrip("\n")
+                yield f"data: {line}\n\n"
+                await asyncio.sleep(0)  # yield control so client receives chunks
+
+            proc.wait()
+            if proc.returncode == 0:
+                yield f"event: done\ndata: {slug}\n\n"
+            else:
+                yield f"event: error\ndata: diagram.py exited with code {proc.returncode}\n\n"
+        finally:
+            _new_project_procs.pop(slug, None)
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+@app.post("/api/new_project/cancel")
+async def new_project_cancel(repo: str):
+    slug = repo.split("/")[-1].lower()
+    proc = _new_project_procs.pop(slug, None)
+    if proc and proc.poll() is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+    return {"status": "cancelled"}
 
 
 if __name__ == "__main__":
