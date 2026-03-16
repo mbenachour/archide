@@ -143,6 +143,14 @@
       "path": "",
       "description": "",
       "project": "NVIDIAcuda-python"
+    },
+    {
+      "id": "SETTINGS",
+      "label": "Settings Page",
+      "tier": "Dev",
+      "path": "browser/settings.py",
+      "description": "Page to configure browser-related settings.",
+      "project": "NVIDIAcuda-python"
     }
   ],
   "edges": [
