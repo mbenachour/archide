@@ -19,6 +19,7 @@ import ContainerNode from './ContainerNode';
 import Sidebar from './Sidebar';
 import ChatPanel from './ChatPanel';
 import NewProjectModal from './NewProjectModal';
+import NodeDetailModal from './NodeDetailModal';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -107,7 +108,8 @@ function ArchitectureFlow() {
         label: node.label || node.name || node.id,
         path: node.path,
         description: node.description,
-        tier: node.tier
+        tier: node.tier,
+        onDoubleClick: () => setEditingNode({ id: node.id, data: { label: node.label || node.name || node.id, path: node.path, description: node.description, tier: node.tier } }),
       },
       position: { x: 0, y: 0 }
     }));
@@ -184,16 +186,20 @@ function ArchitectureFlow() {
         'External': 'New External API',
       };
 
+      const newNodeId = getId();
+      const newNodeData = {
+        label: type === 'container' ? 'Container' : (tierLabels[tier] || 'New Node'),
+        tier: tier,
+        description: type === 'container' ? 'Group of services' : '',
+        path: '',
+        onDoubleClick: () => setEditingNode({ id: newNodeId, data: newNodeData }),
+      };
+
       const newNode: any = {
-        id: getId(),
+        id: newNodeId,
         type,
         position,
-        data: {
-          label: type === 'container' ? 'Container' : (tierLabels[tier] || 'New Node'),
-          tier: tier,
-          description: type === 'container' ? 'Group of services' : 'Double click to edit (feature coming soon)',
-          path: ''
-        },
+        data: newNodeData,
       };
 
       if (type === 'container') {
@@ -272,6 +278,20 @@ function ArchitectureFlow() {
         <NewProjectModal
           onClose={() => setShowNewProject(false)}
           onProjectCreated={(slug) => loadProjects(slug)}
+        />
+      )}
+      {editingNode && (
+        <NodeDetailModal
+          nodeId={editingNode.id}
+          data={editingNode.data}
+          onClose={() => setEditingNode(null)}
+          onSave={(nodeId, newData) => {
+            setNodes(nds => nds.map(n =>
+              n.id === nodeId
+                ? { ...n, data: { ...newData, onDoubleClick: () => setEditingNode({ id: nodeId, data: newData }) } }
+                : n
+            ));
+          }}
         />
       )}
       <Sidebar />

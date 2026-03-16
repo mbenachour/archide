@@ -12,7 +12,10 @@ export default function CustomNode({ data }: any) {
     }
 
     return (
-        <div className={`px-1.5 py-1 shadow-sm rounded-sm border ${getColors()} min-w-[80px] w-auto max-w-[120px]`}>
+        <div
+            className={`px-1.5 py-1 shadow-sm rounded-sm border ${getColors()} min-w-[80px] w-auto max-w-[120px] cursor-pointer`}
+            onDoubleClick={() => data.onDoubleClick?.()}
+        >
             <Handle type="target" position={Position.Top} className="!bg-gray-400 !border !border-gray-800 !w-1.5 !h-1.5" />
             <div className="font-bold text-[8px] mb-0.5 leading-none">{data.label}</div>
             {data.path && <div className="text-[6px] opacity-70 font-mono break-all leading-none mb-0.5">{data.path}</div>}
