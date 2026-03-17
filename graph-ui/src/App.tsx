@@ -76,6 +76,7 @@ function ArchitectureFlow() {
   const [editingNode, setEditingNode] = useState<{ id: string; data: any } | null>(null);
   const [hasUnimplementedEdits, setHasUnimplementedEdits] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
@@ -84,6 +85,15 @@ function ArchitectureFlow() {
     localStorage.setItem('selectedProject', slug);
     setSelectedProject(slug);
   }, []);
+
+  const deleteProject = useCallback(async () => {
+    if (!selectedProject) return;
+    await fetch(`${API}/api/architectures/${selectedProject}`, { method: 'DELETE' });
+    setConfirmDelete(false);
+    setNodes([]);
+    setEdges([]);
+    await loadProjects();
+  }, [selectedProject, setNodes, setEdges]);
 
   const loadProjects = useCallback(async (selectSlug?: string) => {
     try {
@@ -347,15 +357,33 @@ function ArchitectureFlow() {
             ) : (
               <>
                 <label className="text-xs uppercase font-bold text-gray-400 tracking-wider">Select Project</label>
-                <select
-                  className="mt-1 w-full p-2 bg-slate-900 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-blue-500"
-                  value={selectedProject || ''}
-                  onChange={(e) => setAndPersistProject(e.target.value)}
-                >
-                  {projects.map(p => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                </select>
+                <div className="mt-1 flex gap-1">
+                  <select
+                    className="flex-1 p-2 bg-slate-900 border border-slate-600 rounded text-sm text-white focus:outline-none focus:border-blue-500"
+                    value={selectedProject || ''}
+                    onChange={(e) => { setConfirmDelete(false); setAndPersistProject(e.target.value); }}
+                  >
+                    {projects.map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => setConfirmDelete(v => !v)}
+                    title="Delete project"
+                    className="px-2 text-slate-500 hover:text-red-400 border border-slate-600 rounded transition-colors text-sm"
+                  >
+                    🗑
+                  </button>
+                </div>
+                {confirmDelete && (
+                  <div className="mt-2 p-2 bg-red-950 border border-red-700 rounded-lg flex items-center justify-between gap-2">
+                    <span className="text-xs text-red-300">Delete <b>{selectedProject}</b>?</span>
+                    <div className="flex gap-1">
+                      <button onClick={() => setConfirmDelete(false)} className="text-xs px-2 py-1 text-slate-400 hover:text-white transition-colors">Cancel</button>
+                      <button onClick={deleteProject} className="text-xs px-2 py-1 bg-red-600 hover:bg-red-500 text-white rounded font-bold transition-colors">Delete</button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
             <button
