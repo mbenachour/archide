@@ -1,0 +1,425 @@
+=== RAW ===
+{
+  "nodes": [
+    {
+      "id": "CheatSheetEngine",
+      "label": "CheatSheetEngine",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine",
+      "description": "Orchestrates parsing, formatting, and sample registry for the cheat sheet."
+    },
+    {
+      "id": "Parser",
+      "label": "Parser",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/parser.ts",
+      "description": "Parses Markdown snippets by identifiers or input into internal representation."
+    },
+    {
+      "id": "Formatter",
+      "label": "Formatter",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/formatter.ts",
+      "description": "Normalizes and formats syntax examples for display."
+    },
+    {
+      "id": "ExamplesRegistry",
+      "label": "ExamplesRegistry",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/examplesRegistry.ts",
+      "description": "Stores, indexes, and retrieves ready-to-use Markdown syntax samples."
+    },
+    {
+      "id": "RenderService",
+      "label": "RenderService",
+      "tier": "Core",
+      "path": "src/render",
+      "description": "Coordinates rendering adapters to present examples as HTML or Markdown."
+    },
+    {
+      "id": "HTMLRenderer",
+      "label": "HTMLRenderer",
+      "tier": "Core",
+      "path": "src/render/htmlRenderer.ts",
+      "description": "Converts snippets into HTML with optional theming."
+    },
+    {
+      "id": "MDRenderer",
+      "label": "MDRenderer",
+      "tier": "Supporting",
+      "path": "src/render/mdRenderer.ts",
+      "description": "Converts rendered HTML back to Markdown when needed."
+    },
+    {
+      "id": "StyleEngine",
+      "label": "StyleEngine",
+      "tier": "Supporting",
+      "path": "src/render/styleEngine.ts",
+      "description": "Applies themes and styling to rendered output."
+    },
+    {
+      "id": "DataLayer",
+      "label": "DataLayer",
+      "tier": "Core",
+      "path": "src/data",
+      "description": "Core data access layer and repositories."
+    },
+    {
+      "id": "ExamplesDatabase",
+      "label": "ExamplesDatabase",
+      "tier": "Core",
+      "path": "src/data/examplesDatabase.ts",
+      "description": "In-memory or persistent store of snippet models."
+    },
+    {
+      "id": "ContentLoader",
+      "label": "ContentLoader",
+      "tier": "Core",
+      "path": "src/data/contentLoader.ts",
+      "description": "Loads examples from files, JSON, or remote sources into the store."
+    },
+    {
+      "id": "UserInterface",
+      "label": "UserInterface",
+      "tier": "Supporting",
+      "path": "src/ui",
+      "description": "CLI and Web UI entry points for users to browse examples."
+    },
+    {
+      "id": "CLI",
+      "label": "CLI",
+      "tier": "Dev",
+      "path": "src/ui/cli.ts",
+      "description": "Command-line interface for fetching and displaying cheat sheet samples."
+    },
+    {
+      "id": "WebUI",
+      "label": "WebUI",
+      "tier": "Dev",
+      "path": "src/ui/webUI.ts",
+      "description": "Web-based interface for interactive browsing of examples."
+    },
+    {
+      "id": "RuntimeAPI",
+      "label": "RuntimeAPI",
+      "tier": "Supporting",
+      "path": "src/api",
+      "description": "Library-style API exposing core cheatsheet capabilities."
+    },
+    {
+      "id": "ConfigManager",
+      "label": "ConfigManager",
+      "tier": "Supporting",
+      "path": "src/config/configManager.ts",
+      "description": "Centralized configuration and feature flags."
+    },
+    {
+      "id": "CacheLayer",
+      "label": "CacheLayer",
+      "tier": "Supporting",
+      "path": "src/cache/cache.ts",
+      "description": "In-memory/persistent cache for fast access to snippets."
+    },
+    {
+      "id": "SearchIndex",
+      "label": "SearchIndex",
+      "tier": "Supporting",
+      "path": "src/search/searchIndex.ts",
+      "description": "Lightweight index to find examples by tag."
+    },
+    {
+      "id": "ValidationSanitization",
+      "label": "ValidationSanitization",
+      "tier": "Supporting",
+      "path": "src/validation/validation.ts",
+      "description": "Input/output safety checks and sanitization."
+    },
+    {
+      "id": "LocalizationI18n",
+      "label": "LocalizationI18n",
+      "tier": "Supporting",
+      "path": "src/i18n/index.ts",
+      "description": "Internationalization and localization support."
+    },
+    {
+      "id": "SnippetModel",
+      "label": "SnippetModel",
+      "tier": "Core",
+      "path": "src/models/snippetModel.ts",
+      "description": "Structure for a syntax example (id, category, syntax, sampleOutput)."
+    },
+    {
+      "id": "Taxonomy",
+      "label": "Taxonomy",
+      "tier": "Core",
+      "path": "src/models/taxonomy.ts",
+      "description": "Tag taxonomy and category structure for snippets."
+    },
+    {
+      "id": "DeploymentTargets",
+      "label": "DeploymentTargets",
+      "tier": "Dev",
+      "path": "src/deploy",
+      "description": "Deployment targets and runtime deployment helpers."
+    },
+    {
+      "id": "WebViewer",
+      "label": "WebViewer",
+      "tier": "Dev",
+      "path": "src/deploy/webViewer.ts",
+      "description": "Web-based viewer implementation for the cheat sheet."
+    },
+    {
+      "id": "LibraryMode",
+      "label": "LibraryMode",
+      "tier": "Core",
+      "path": "src/index.ts",
+      "description": "Library entry point for embedding the cheat sheet runtime."
+    }
+  ],
+  "edges": [
+    { "source": "CheatSheetEngine", "target": "Parser", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "Formatter", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "ExamplesRegistry", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "DataLayer", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "RenderService", "type": "DEPENDS_ON" },
+    { "source": "Parser", "target": "SnippetModel", "type": "READS" },
+    { "source": "Formatter", "target": "SnippetModel", "type": "READS" },
+    { "source": "ExamplesRegistry", "target": "SnippetModel", "type": "READS" },
+    { "source": "RenderService", "target": "HTMLRenderer", "type": "CALLS" },
+    { "source": "RenderService", "target": "MDRenderer", "type": "CALLS" },
+    { "source": "RenderService", "target": "StyleEngine", "type": "CALLS" },
+    { "source": "HTMLRenderer", "target": "SnippetModel", "type": "READS" },
+    { "source": "MDRenderer", "target": "SnippetModel", "type": "READS" },
+    { "source": "DataLayer", "target": "ExamplesDatabase", "type": "DEPENDS_ON" },
+    { "source": "ContentLoader", "target": "ExamplesDatabase", "type": "WRITES" },
+    { "source": "ExamplesRegistry", "target": "ExamplesDatabase", "type": "DEPENDS_ON" },
+    { "source": "UserInterface", "target": "CLI", "type": "DEPENDS_ON" },
+    { "source": "UserInterface", "target": "WebUI", "type": "DEPENDS_ON" },
+    { "source": "CLI", "target": "RuntimeAPI", "type": "DEPENDS_ON" },
+    { "source": "WebUI", "target": "RuntimeAPI", "type": "DEPENDS_ON" },
+    { "source": "RuntimeAPI", "target": "CheatSheetEngine", "type": "CALLS" },
+    { "source": "ConfigManager", "target": "CacheLayer", "type": "DEPENDS_ON" },
+    { "source": "CacheLayer", "target": "ExamplesDatabase", "type": "READS" },
+    { "source": "SearchIndex", "target": "ExamplesRegistry", "type": "READS" },
+    { "source": "ValidationSanitization", "target": "CheatSheetEngine", "type": "CALLS" },
+    { "source": "LocalizationI18n", "target": "CheatSheetEngine", "type": "DEPENDS_ON" },
+    { "source": "SnippetModel", "target": "Taxonomy", "type": "DEPENDS_ON" },
+    { "source": "DeploymentTargets", "target": "WebViewer", "type": "DEPLOYS" },
+    { "source": "LibraryMode", "target": "CheatSheetEngine", "type": "DEPENDS_ON" },
+    { "source": "WebViewer", "target": "DeploymentTargets", "type": "DEPENDS_ON" }
+  ]
+}
+
+=== CLEANED ===
+{
+  "nodes": [
+    {
+      "id": "CheatSheetEngine",
+      "label": "CheatSheetEngine",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine",
+      "description": "Orchestrates parsing, formatting, and sample registry for the cheat sheet."
+    },
+    {
+      "id": "Parser",
+      "label": "Parser",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/parser.ts",
+      "description": "Parses Markdown snippets by identifiers or input into internal representation."
+    },
+    {
+      "id": "Formatter",
+      "label": "Formatter",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/formatter.ts",
+      "description": "Normalizes and formats syntax examples for display."
+    },
+    {
+      "id": "ExamplesRegistry",
+      "label": "ExamplesRegistry",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/examplesRegistry.ts",
+      "description": "Stores, indexes, and retrieves ready-to-use Markdown syntax samples."
+    },
+    {
+      "id": "RenderService",
+      "label": "RenderService",
+      "tier": "Core",
+      "path": "src/render",
+      "description": "Coordinates rendering adapters to present examples as HTML or Markdown."
+    },
+    {
+      "id": "HTMLRenderer",
+      "label": "HTMLRenderer",
+      "tier": "Core",
+      "path": "src/render/htmlRenderer.ts",
+      "description": "Converts snippets into HTML with optional theming."
+    },
+    {
+      "id": "MDRenderer",
+      "label": "MDRenderer",
+      "tier": "Supporting",
+      "path": "src/render/mdRenderer.ts",
+      "description": "Converts rendered HTML back to Markdown when needed."
+    },
+    {
+      "id": "StyleEngine",
+      "label": "StyleEngine",
+      "tier": "Supporting",
+      "path": "src/render/styleEngine.ts",
+      "description": "Applies themes and styling to rendered output."
+    },
+    {
+      "id": "DataLayer",
+      "label": "DataLayer",
+      "tier": "Core",
+      "path": "src/data",
+      "description": "Core data access layer and repositories."
+    },
+    {
+      "id": "ExamplesDatabase",
+      "label": "ExamplesDatabase",
+      "tier": "Core",
+      "path": "src/data/examplesDatabase.ts",
+      "description": "In-memory or persistent store of snippet models."
+    },
+    {
+      "id": "ContentLoader",
+      "label": "ContentLoader",
+      "tier": "Core",
+      "path": "src/data/contentLoader.ts",
+      "description": "Loads examples from files, JSON, or remote sources into the store."
+    },
+    {
+      "id": "UserInterface",
+      "label": "UserInterface",
+      "tier": "Supporting",
+      "path": "src/ui",
+      "description": "CLI and Web UI entry points for users to browse examples."
+    },
+    {
+      "id": "CLI",
+      "label": "CLI",
+      "tier": "Dev",
+      "path": "src/ui/cli.ts",
+      "description": "Command-line interface for fetching and displaying cheat sheet samples."
+    },
+    {
+      "id": "WebUI",
+      "label": "WebUI",
+      "tier": "Dev",
+      "path": "src/ui/webUI.ts",
+      "description": "Web-based interface for interactive browsing of examples."
+    },
+    {
+      "id": "RuntimeAPI",
+      "label": "RuntimeAPI",
+      "tier": "Supporting",
+      "path": "src/api",
+      "description": "Library-style API exposing core cheatsheet capabilities."
+    },
+    {
+      "id": "ConfigManager",
+      "label": "ConfigManager",
+      "tier": "Supporting",
+      "path": "src/config/configManager.ts",
+      "description": "Centralized configuration and feature flags."
+    },
+    {
+      "id": "CacheLayer",
+      "label": "CacheLayer",
+      "tier": "Supporting",
+      "path": "src/cache/cache.ts",
+      "description": "In-memory/persistent cache for fast access to snippets."
+    },
+    {
+      "id": "SearchIndex",
+      "label": "SearchIndex",
+      "tier": "Supporting",
+      "path": "src/search/searchIndex.ts",
+      "description": "Lightweight index to find examples by tag."
+    },
+    {
+      "id": "ValidationSanitization",
+      "label": "ValidationSanitization",
+      "tier": "Supporting",
+      "path": "src/validation/validation.ts",
+      "description": "Input/output safety checks and sanitization."
+    },
+    {
+      "id": "LocalizationI18n",
+      "label": "LocalizationI18n",
+      "tier": "Supporting",
+      "path": "src/i18n/index.ts",
+      "description": "Internationalization and localization support."
+    },
+    {
+      "id": "SnippetModel",
+      "label": "SnippetModel",
+      "tier": "Core",
+      "path": "src/models/snippetModel.ts",
+      "description": "Structure for a syntax example (id, category, syntax, sampleOutput)."
+    },
+    {
+      "id": "Taxonomy",
+      "label": "Taxonomy",
+      "tier": "Core",
+      "path": "src/models/taxonomy.ts",
+      "description": "Tag taxonomy and category structure for snippets."
+    },
+    {
+      "id": "DeploymentTargets",
+      "label": "DeploymentTargets",
+      "tier": "Dev",
+      "path": "src/deploy",
+      "description": "Deployment targets and runtime deployment helpers."
+    },
+    {
+      "id": "WebViewer",
+      "label": "WebViewer",
+      "tier": "Dev",
+      "path": "src/deploy/webViewer.ts",
+      "description": "Web-based viewer implementation for the cheat sheet."
+    },
+    {
+      "id": "LibraryMode",
+      "label": "LibraryMode",
+      "tier": "Core",
+      "path": "src/index.ts",
+      "description": "Library entry point for embedding the cheat sheet runtime."
+    }
+  ],
+  "edges": [
+    { "source": "CheatSheetEngine", "target": "Parser", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "Formatter", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "ExamplesRegistry", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "DataLayer", "type": "DEPENDS_ON" },
+    { "source": "CheatSheetEngine", "target": "RenderService", "type": "DEPENDS_ON" },
+    { "source": "Parser", "target": "SnippetModel", "type": "READS" },
+    { "source": "Formatter", "target": "SnippetModel", "type": "READS" },
+    { "source": "ExamplesRegistry", "target": "SnippetModel", "type": "READS" },
+    { "source": "RenderService", "target": "HTMLRenderer", "type": "CALLS" },
+    { "source": "RenderService", "target": "MDRenderer", "type": "CALLS" },
+    { "source": "RenderService", "target": "StyleEngine", "type": "CALLS" },
+    { "source": "HTMLRenderer", "target": "SnippetModel", "type": "READS" },
+    { "source": "MDRenderer", "target": "SnippetModel", "type": "READS" },
+    { "source": "DataLayer", "target": "ExamplesDatabase", "type": "DEPENDS_ON" },
+    { "source": "ContentLoader", "target": "ExamplesDatabase", "type": "WRITES" },
+    { "source": "ExamplesRegistry", "target": "ExamplesDatabase", "type": "DEPENDS_ON" },
+    { "source": "UserInterface", "target": "CLI", "type": "DEPENDS_ON" },
+    { "source": "UserInterface", "target": "WebUI", "type": "DEPENDS_ON" },
+    { "source": "CLI", "target": "RuntimeAPI", "type": "DEPENDS_ON" },
+    { "source": "WebUI", "target": "RuntimeAPI", "type": "DEPENDS_ON" },
+    { "source": "RuntimeAPI", "target": "CheatSheetEngine", "type": "CALLS" },
+    { "source": "ConfigManager", "target": "CacheLayer", "type": "DEPENDS_ON" },
+    { "source": "CacheLayer", "target": "ExamplesDatabase", "type": "READS" },
+    { "source": "SearchIndex", "target": "ExamplesRegistry", "type": "READS" },
+    { "source": "ValidationSanitization", "target": "CheatSheetEngine", "type": "CALLS" },
+    { "source": "LocalizationI18n", "target": "CheatSheetEngine", "type": "DEPENDS_ON" },
+    { "source": "SnippetModel", "target": "Taxonomy", "type": "DEPENDS_ON" },
+    { "source": "DeploymentTargets", "target": "WebViewer", "type": "DEPLOYS" },
+    { "source": "LibraryMode", "target": "CheatSheetEngine", "type": "DEPENDS_ON" },
+    { "source": "WebViewer", "target": "DeploymentTargets", "type": "DEPENDS_ON" }
+  ]
+}
