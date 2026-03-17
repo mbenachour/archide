@@ -387,6 +387,106 @@ async def diagram_discard_endpoint(req: ConfirmRequest):
     return {"status": "discarded"}
 
 
+# ── Diagram Status ───────────────────────────────────────────────────────────
+
+@app.get("/api/diagram/status/{project}")
+async def diagram_status_endpoint(project: str):
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", project)
+    if not os.path.isdir(os.path.join(project_dir, ".git")):
+        return {"has_unimplemented_edits": False}
+
+    # Check diagramedits branch exists
+    check = subprocess.run(
+        ["git", "rev-parse", "--verify", "diagramedits"],
+        cwd=project_dir, capture_output=True, text=True
+    )
+    if check.returncode != 0:
+        return {"has_unimplemented_edits": False}
+
+    diagram_hash = check.stdout.strip()
+    diagram_time = int(subprocess.run(
+        ["git", "log", "-1", "--format=%ct", "diagramedits"],
+        cwd=project_dir, capture_output=True, text=True
+    ).stdout.strip() or "0")
+
+    impl_branches = [
+        b.strip().lstrip("* ")
+        for b in subprocess.run(
+            ["git", "branch", "--list", "impl/*"],
+            cwd=project_dir, capture_output=True, text=True
+        ).stdout.splitlines()
+        if b.strip()
+    ]
+
+    if not impl_branches:
+        return {"has_unimplemented_edits": True, "diagram_hash": diagram_hash[:7]}
+
+    latest_impl_time = max(
+        int(subprocess.run(
+            ["git", "log", "-1", "--format=%ct", b],
+            cwd=project_dir, capture_output=True, text=True
+        ).stdout.strip() or "0")
+        for b in impl_branches
+    )
+
+    return {
+        "has_unimplemented_edits": diagram_time > latest_impl_time,
+        "diagram_hash": diagram_hash[:7],
+    }
+
+
+@app.get("/api/diagram/pending_commits/{project}")
+async def diagram_pending_commits_endpoint(project: str):
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", project)
+    if not os.path.isdir(os.path.join(project_dir, ".git")):
+        return {"commits": []}
+
+    check = subprocess.run(
+        ["git", "rev-parse", "--verify", "diagramedits"],
+        cwd=project_dir, capture_output=True, text=True
+    )
+    if check.returncode != 0:
+        return {"commits": []}
+
+    impl_branches = [
+        b.strip().lstrip("* ")
+        for b in subprocess.run(
+            ["git", "branch", "--list", "impl/*"],
+            cwd=project_dir, capture_output=True, text=True
+        ).stdout.splitlines()
+        if b.strip()
+    ]
+
+    if impl_branches:
+        latest_impl_branch = max(
+            impl_branches,
+            key=lambda b: int(subprocess.run(
+                ["git", "log", "-1", "--format=%ct", b],
+                cwd=project_dir, capture_output=True, text=True
+            ).stdout.strip() or "0")
+        )
+        log_result = subprocess.run(
+            ["git", "log", "diagramedits", f"--not", latest_impl_branch, "--format=%h|%cr|%s"],
+            cwd=project_dir, capture_output=True, text=True
+        )
+    else:
+        log_result = subprocess.run(
+            ["git", "log", "diagramedits", "--format=%h|%cr|%s"],
+            cwd=project_dir, capture_output=True, text=True
+        )
+
+    _ARCHIDE_PREFIXES = ("auto-save:", "diagram snapshot")
+
+    commits = []
+    for line in log_result.stdout.splitlines():
+        parts = line.split("|", 2)
+        if len(parts) == 3:
+            msg = parts[2]
+            if any(msg.lower().startswith(p) for p in _ARCHIDE_PREFIXES):
+                commits.append({"hash": parts[0], "time": parts[1], "message": msg})
+    return {"commits": commits}
+
+
 # ── New Project ──────────────────────────────────────────────────────────────
 
 ARCHITECTURES_DIR = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures")
