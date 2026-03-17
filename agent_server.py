@@ -385,21 +385,44 @@ async def diagram_confirm_endpoint(req: ConfirmRequest):
 
     project_dir = os.path.join(os.path.dirname(__file__), "projects", req.project)
     branch = proposal["branch_name"]
+    s = _load_settings()
+    coding_agent = s.get("coding_agent", "")
+    agent_path = s.get("agent_path", "")
 
     def git(cmd):
         return subprocess.run(["git"] + cmd, cwd=project_dir, capture_output=True, text=True, check=True)
 
     git(["checkout", "-b", branch])
 
-    written = []
-    for op in proposal["files"]:
-        filepath = os.path.join(project_dir, op["path"])
-        dir_path = os.path.dirname(filepath)
-        if dir_path:
-            os.makedirs(dir_path, exist_ok=True)
-        with open(filepath, "w") as f:
-            f.write(op["content"])
-        written.append(op["path"])
+    if coding_agent == "claude-code" and agent_path and os.path.isfile(agent_path):
+        # Build a prompt describing all the changes and hand off to Claude Code
+        file_ops = "\n\n".join(
+            f"### {op['action'].upper()}: {op['path']}\n{op.get('summary', '')}\n\n```\n{op['content']}\n```"
+            for op in proposal["files"]
+        )
+        prompt = (
+            f"Implement the following architecture changes for project '{req.project}'.\n"
+            f"Create or modify each file exactly as specified. Do not ask for confirmation.\n\n"
+            f"{file_ops}"
+        )
+        result = subprocess.run(
+            [agent_path, "-p", prompt, "--allowedTools", "Edit,Write,Bash"],
+            cwd=project_dir, capture_output=True, text=True
+        )
+        if result.returncode != 0:
+            raise HTTPException(status_code=500, detail=f"Claude Code failed: {result.stderr or result.stdout}")
+        written = [op["path"] for op in proposal["files"]]
+    else:
+        # Fallback: write files directly
+        written = []
+        for op in proposal["files"]:
+            filepath = os.path.join(project_dir, op["path"])
+            dir_path = os.path.dirname(filepath)
+            if dir_path:
+                os.makedirs(dir_path, exist_ok=True)
+            with open(filepath, "w") as f:
+                f.write(op["content"])
+            written.append(op["path"])
 
     git(["add", "."])
     git(["commit", "-m", f"impl: {branch.removeprefix('impl/')}"])
