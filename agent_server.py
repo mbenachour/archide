@@ -21,6 +21,38 @@ import subprocess
 from agents import Agent, Runner, function_tool, SQLiteSession
 
 SESSIONS_DB = os.path.join(os.path.dirname(__file__), "sessions.db")
+SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "settings.json")
+
+# ── Settings bootstrap ────────────────────────────────────────────────────────
+
+_SENSITIVE = {"openai_api_key", "ollama_api_key"}
+
+def _load_settings() -> dict:
+    if os.path.exists(SETTINGS_PATH):
+        try:
+            with open(SETTINGS_PATH) as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+def _apply_settings_to_env(s: dict):
+    """Push settings values into os.environ so the agent and subprocesses pick them up."""
+    if s.get("openai_api_key"):
+        os.environ["OPENAI_API_KEY"] = s["openai_api_key"]
+    if s.get("ollama_api_key"):
+        os.environ["OLLAMA_API_KEY"] = s["ollama_api_key"]
+    if s.get("provider"):
+        os.environ["PROVIDER"] = s["provider"]
+    if s.get("openai_model"):
+        os.environ["OPENAI_MODEL"] = s["openai_model"]
+    if s.get("ollama_model"):
+        os.environ["OLLAMA_MODEL"] = s["ollama_model"]
+    if s.get("ollama_url"):
+        os.environ["OLLAMA_URL"] = s["ollama_url"]
+
+# Apply on startup
+_apply_settings_to_env(_load_settings())
 
 app = FastAPI()
 

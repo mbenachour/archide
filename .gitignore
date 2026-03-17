@@ -74,3 +74,5 @@ projects/
 sessions.db
 sessions.db-wal
 sessions.db-shm
+# User settings (may contain API keys)
+settings.json
