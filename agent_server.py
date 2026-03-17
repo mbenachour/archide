@@ -591,13 +591,22 @@ async def new_project_stream(
     slug = repo.split("/")[-1].lower()
     out_path = os.path.join(ARCHITECTURES_DIR, f"{slug}.json")
 
+    s = _load_settings()
     cmd = ["python", os.path.join(os.path.dirname(__file__), "diagram.py"), repo, "--out", out_path]
-    if detail:
+    if detail or s.get("diagram_detail"):
         cmd += ["--detail"]
-    if skip_validation:
+    if skip_validation or s.get("diagram_skip_validation"):
         cmd += ["--skip-validation"]
     if debug:
         cmd += ["--debug"]
+    if s.get("provider"):
+        cmd += ["--provider", s["provider"]]
+    if s.get("provider") == "openai" and s.get("openai_model"):
+        cmd += ["--openai-model", s["openai_model"]]
+    if s.get("provider") != "openai" and s.get("ollama_model"):
+        cmd += ["--model", s["ollama_model"]]
+    if s.get("ollama_url"):
+        cmd += ["--ollama-url", s["ollama_url"]]
 
     async def event_stream():
         proc = subprocess.Popen(
