@@ -1,0 +1,388 @@
+{
+  "project": "tchapimarkdown-cheatsheet",
+  "original_repo": "tchapi/markdown-cheatsheet",
+  "nodes": [
+    {
+      "id": "CheatSheetEngine",
+      "label": "CheatSheetEngine",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine",
+      "description": "Orchestrates parsing, formatting, and sample registry for the cheat sheet.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "Parser",
+      "label": "Parser",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/parser.ts",
+      "description": "Parses Markdown snippets by identifiers or input into internal representation.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "Formatter",
+      "label": "Formatter",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/formatter.ts",
+      "description": "Normalizes and formats syntax examples for display.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "ExamplesRegistry",
+      "label": "ExamplesRegistry",
+      "tier": "Core",
+      "path": "src/core/cheatsheetEngine/examplesRegistry.ts",
+      "description": "Stores, indexes, and retrieves ready-to-use Markdown syntax samples.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "RenderService",
+      "label": "RenderService",
+      "tier": "Core",
+      "path": "src/render",
+      "description": "Coordinates rendering adapters to present examples as HTML or Markdown.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "HTMLRenderer",
+      "label": "HTMLRenderer",
+      "tier": "Core",
+      "path": "src/render/htmlRenderer.ts",
+      "description": "Converts snippets into HTML with optional theming.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "MDRenderer",
+      "label": "MDRenderer",
+      "tier": "Supporting",
+      "path": "src/render/mdRenderer.ts",
+      "description": "Converts rendered HTML back to Markdown when needed.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "StyleEngine",
+      "label": "StyleEngine",
+      "tier": "Supporting",
+      "path": "src/render/styleEngine.ts",
+      "description": "Applies themes and styling to rendered output.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "DataLayer",
+      "label": "DataLayer",
+      "tier": "Core",
+      "path": "src/data",
+      "description": "Core data access layer and repositories.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "ExamplesDatabase",
+      "label": "ExamplesDatabase",
+      "tier": "Core",
+      "path": "src/data/examplesDatabase.ts",
+      "description": "In-memory or persistent store of snippet models.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "ContentLoader",
+      "label": "ContentLoader",
+      "tier": "Core",
+      "path": "src/data/contentLoader.ts",
+      "description": "Loads examples from files, JSON, or remote sources into the store.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "UserInterface",
+      "label": "UserInterface",
+      "tier": "Supporting",
+      "path": "src/ui",
+      "description": "CLI and Web UI entry points for users to browse examples.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "CLI",
+      "label": "CLI",
+      "tier": "Dev",
+      "path": "src/ui/cli.ts",
+      "description": "Command-line interface for fetching and displaying cheat sheet samples.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "WebUI",
+      "label": "WebUI",
+      "tier": "Dev",
+      "path": "src/ui/webUI.ts",
+      "description": "Web-based interface for interactive browsing of examples.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "RuntimeAPI",
+      "label": "RuntimeAPI",
+      "tier": "Supporting",
+      "path": "src/api",
+      "description": "Library-style API exposing core cheatsheet capabilities.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "ConfigManager",
+      "label": "ConfigManager",
+      "tier": "Supporting",
+      "path": "src/config/configManager.ts",
+      "description": "Centralized configuration and feature flags.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "CacheLayer",
+      "label": "CacheLayer",
+      "tier": "Supporting",
+      "path": "src/cache/cache.ts",
+      "description": "In-memory/persistent cache for fast access to snippets.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "SearchIndex",
+      "label": "SearchIndex",
+      "tier": "Supporting",
+      "path": "src/search/searchIndex.ts",
+      "description": "Lightweight index to find examples by tag.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "ValidationSanitization",
+      "label": "ValidationSanitization",
+      "tier": "Supporting",
+      "path": "src/validation/validation.ts",
+      "description": "Input/output safety checks and sanitization.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "LocalizationI18n",
+      "label": "LocalizationI18n",
+      "tier": "Supporting",
+      "path": "src/i18n/index.ts",
+      "description": "Internationalization and localization support.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "SnippetModel",
+      "label": "SnippetModel",
+      "tier": "Core",
+      "path": "src/models/snippetModel.ts",
+      "description": "Structure for a syntax example (id, category, syntax, sampleOutput).",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "Taxonomy",
+      "label": "Taxonomy",
+      "tier": "Core",
+      "path": "src/models/taxonomy.ts",
+      "description": "Tag taxonomy and category structure for snippets.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "DeploymentTargets",
+      "label": "DeploymentTargets",
+      "tier": "Dev",
+      "path": "src/deploy",
+      "description": "Deployment targets and runtime deployment helpers.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "WebViewer",
+      "label": "WebViewer",
+      "tier": "Dev",
+      "path": "src/deploy/webViewer.ts",
+      "description": "Web-based viewer implementation for the cheat sheet.",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "id": "LibraryMode",
+      "label": "LibraryMode",
+      "tier": "Core",
+      "path": "src/index.ts",
+      "description": "Library entry point for embedding the cheat sheet runtime.",
+      "project": "tchapimarkdown-cheatsheet"
+    }
+  ],
+  "edges": [
+    {
+      "source": "CheatSheetEngine",
+      "target": "Parser",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "CheatSheetEngine",
+      "target": "Formatter",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "CheatSheetEngine",
+      "target": "ExamplesRegistry",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "CheatSheetEngine",
+      "target": "DataLayer",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "CheatSheetEngine",
+      "target": "RenderService",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "Parser",
+      "target": "SnippetModel",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "Formatter",
+      "target": "SnippetModel",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "ExamplesRegistry",
+      "target": "SnippetModel",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "RenderService",
+      "target": "HTMLRenderer",
+      "type": "CALLS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "RenderService",
+      "target": "MDRenderer",
+      "type": "CALLS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "RenderService",
+      "target": "StyleEngine",
+      "type": "CALLS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "HTMLRenderer",
+      "target": "SnippetModel",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "MDRenderer",
+      "target": "SnippetModel",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "DataLayer",
+      "target": "ExamplesDatabase",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "ContentLoader",
+      "target": "ExamplesDatabase",
+      "type": "WRITES",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "ExamplesRegistry",
+      "target": "ExamplesDatabase",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "UserInterface",
+      "target": "CLI",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "UserInterface",
+      "target": "WebUI",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "CLI",
+      "target": "RuntimeAPI",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "WebUI",
+      "target": "RuntimeAPI",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "RuntimeAPI",
+      "target": "CheatSheetEngine",
+      "type": "CALLS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "ConfigManager",
+      "target": "CacheLayer",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "CacheLayer",
+      "target": "ExamplesDatabase",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "SearchIndex",
+      "target": "ExamplesRegistry",
+      "type": "READS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "ValidationSanitization",
+      "target": "CheatSheetEngine",
+      "type": "CALLS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "LocalizationI18n",
+      "target": "CheatSheetEngine",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "SnippetModel",
+      "target": "Taxonomy",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "DeploymentTargets",
+      "target": "WebViewer",
+      "type": "DEPLOYS",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "LibraryMode",
+      "target": "CheatSheetEngine",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    },
+    {
+      "source": "WebViewer",
+      "target": "DeploymentTargets",
+      "type": "DEPENDS_ON",
+      "project": "tchapimarkdown-cheatsheet"
+    }
+  ]
+}
