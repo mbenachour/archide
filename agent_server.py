@@ -597,6 +597,15 @@ async def get_architecture(project: str):
         return json.load(f)
 
 
+@app.delete("/api/architectures/{project}")
+async def delete_architecture(project: str):
+    path = os.path.join(ARCHITECTURES_DIR, f"{project}.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail=f"No architecture found for '{project}'")
+    os.remove(path)
+    return {"status": "deleted"}
+
+
 class NewProjectRequest(BaseModel):
     repo: str
     detail: bool = False
