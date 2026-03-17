@@ -450,13 +450,25 @@ async def diagram_confirm_endpoint(req: ConfirmRequest):
                 f.write(op["content"])
             written.append(op["path"])
 
-    git(["add", "."])
-    git(["commit", "-m", f"impl: {branch.removeprefix('impl/')}"])
+    # Copy the current diagram JSON into the project repo so impl/* branches
+    # carry an architecture.json snapshot — used as baseline for future /implement diffs.
+    diagram_path = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures", f"{req.project}.json")
+    if os.path.isfile(diagram_path):
+        import shutil
+        shutil.copy2(diagram_path, os.path.join(project_dir, "architecture.json"))
 
-    commit_hash = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"],
-        cwd=project_dir, capture_output=True, text=True
-    ).stdout.strip()
+    git(["add", "."])
+    # Only commit if there is something staged
+    has_staged = git(["diff", "--cached", "--quiet"], check=False).returncode != 0
+    commit_hash = None
+    if has_staged:
+        git(["commit", "-m", f"impl: {branch.removeprefix('impl/')}"])
+        commit_hash = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=project_dir, capture_output=True, text=True
+        ).stdout.strip()
+    else:
+        print(f"[confirm] Nothing staged after file writes — skipping commit on branch {branch}")
 
     del pending_proposals[req.project]
     return {"branch": branch, "commit_hash": commit_hash, "files_written": written}
