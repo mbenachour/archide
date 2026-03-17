@@ -67,6 +67,9 @@ Thumbs.db
 *.sln
 *.sw?
 
+# Debug output
+debug/
+
 # ArchIDE specific
 # Ignore analyzed repositories
 projects/
