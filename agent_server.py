@@ -419,6 +419,30 @@ async def diagram_discard_endpoint(req: ConfirmRequest):
     return {"status": "discarded"}
 
 
+# ── Settings ─────────────────────────────────────────────────────────────────
+
+@app.get("/api/settings")
+async def get_settings():
+    s = _load_settings()
+    # Mask sensitive keys: return "***" if set, "" if not
+    for key in _SENSITIVE:
+        if s.get(key):
+            s[key] = "***"
+    return s
+
+@app.post("/api/settings")
+async def save_settings(body: dict):
+    existing = _load_settings()
+    # If a sensitive field comes back as "***", keep the existing stored value
+    for key in _SENSITIVE:
+        if body.get(key) == "***":
+            body[key] = existing.get(key, "")
+    with open(SETTINGS_PATH, "w") as f:
+        json.dump(body, f, indent=2)
+    _apply_settings_to_env(body)
+    return {"status": "saved"}
+
+
 # ── Diagram Status ───────────────────────────────────────────────────────────
 
 @app.get("/api/diagram/status/{project}")
