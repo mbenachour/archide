@@ -128,6 +128,9 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplem
     const [isIndexing, setIsIndexing] = useState(false);
     const [isIndexed, setIsIndexed] = useState<boolean | null>(null);
     const [applyingFor, setApplyingFor] = useState<string | null>(null);
+    const [hasUnimplementedEdits, setHasUnimplementedEdits] = useState(false);
+    const [showEditHistory, setShowEditHistory] = useState(false);
+    const [pendingCommits, setPendingCommits] = useState<{ hash: string; time: string; message: string }[]>([]);
     const [sessionId, setSessionId] = useState<string>(() => {
         const key = `session:${selectedProject ?? '__default'}`;
         const existing = localStorage.getItem(key);
@@ -362,6 +365,56 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplem
 
                 <div ref={messagesEndRef} />
             </div>
+
+            {/* Unimplemented edits banner */}
+            {hasUnimplementedEdits && (
+                <div className="bg-amber-500/10 border-t border-amber-500/30 shrink-0">
+                    <div className="px-4 py-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                            <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider truncate">Unimplemented diagram edits</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button
+                                onClick={() => {
+                                    const next = !showEditHistory;
+                                    setShowEditHistory(next);
+                                    if (next && selectedProject) {
+                                        fetch(`http://localhost:8833/api/diagram/pending_commits/${selectedProject}`)
+                                            .then(r => r.json())
+                                            .then(d => setPendingCommits(d.commits ?? []))
+                                            .catch(() => setPendingCommits([]));
+                                    }
+                                }}
+                                className="text-[10px] font-bold text-amber-400 hover:text-amber-200 transition-colors"
+                            >
+                                {showEditHistory ? 'Hide ▲' : 'Show ▼'}
+                            </button>
+                            <button
+                                onClick={() => setInput('/implement ')}
+                                className="text-[10px] font-bold text-amber-300 border border-amber-500/40 hover:bg-amber-500/20 px-2 py-0.5 rounded transition-colors"
+                            >
+                                Implement →
+                            </button>
+                        </div>
+                    </div>
+
+                    {showEditHistory && (
+                        <div className="px-4 pb-3 flex flex-col gap-1">
+                            {pendingCommits.length === 0 ? (
+                                <p className="text-[10px] text-slate-500 italic">No commits found.</p>
+                            ) : pendingCommits.map((c, i) => (
+                                <div key={i} className="flex items-start gap-2 py-0.5">
+                                    <span className="shrink-0 w-1 h-1 mt-1.5 rounded-full bg-amber-500/60" />
+                                    <span className="font-mono text-[10px] text-amber-500/80 shrink-0">{c.hash}</span>
+                                    <span className="text-[10px] text-slate-300 flex-1 leading-tight">{c.message.replace(/^auto-save:\s*/i, '')}</span>
+                                    <span className="text-[10px] text-slate-500 shrink-0">{c.time}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Input Form */}
             <div className="p-4 bg-slate-800 border-t border-slate-700 shrink-0">
