@@ -115,9 +115,10 @@ const COMMAND_STYLES = {
     implement: { border: 'border-purple-500/60 focus-within:border-purple-400 focus-within:ring-purple-500/30',   dot: 'bg-purple-400',  text: 'text-purple-400',  btn: 'bg-purple-600 hover:bg-purple-500 disabled:hover:bg-purple-600',   label: 'Implement mode — optionally add a focus hint', btnLabel: 'Run' },
 };
 
-export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
+export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplementedEditsChange }: {
     selectedProject: string | null;
     onDiagramUpdate: (graphData: any) => void;
+    onUnimplementedEditsChange?: (has: boolean) => void;
 }) {
     const WELCOME_MSG: ChatMessage = { role: 'assistant', content: 'Hello! I am your Architecture Assistant. How can I help you design today?\n\nTip: use `/edit`, `/save`, or `/implement` to modify and version the diagram.' };
 
@@ -147,13 +148,26 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
 
     const activeCommand = parseCommand(input).command;
 
+    const fetchStatus = (project: string) => {
+        fetch(`http://localhost:8833/api/diagram/status/${project}`)
+            .then(r => r.json())
+            .then(d => {
+                setHasUnimplementedEdits(d.has_unimplemented_edits);
+                onUnimplementedEditsChange?.(d.has_unimplemented_edits);
+            })
+            .catch(() => {});
+    };
+
     useEffect(() => {
         if (!selectedProject) return;
         setIsIndexed(null);
+        setHasUnimplementedEdits(false);
         fetch(`http://localhost:8833/api/index_status/${selectedProject}`)
             .then(r => r.json())
             .then(d => setIsIndexed(d.indexed))
             .catch(() => setIsIndexed(false));
+        fetchStatus(selectedProject);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedProject]);
 
     useEffect(() => {
@@ -185,6 +199,7 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
                 onDiagramUpdate(data.diagram);
                 const saved = data.commit_hash ? ` Committed as \`${data.commit_hash}\` on \`diagramedits\`.` : '';
                 setMessages(prev => [...prev, { role: 'assistant', content: `Diagram updated.${saved}` }]);
+                fetchStatus(selectedProject);
 
             } else if (command === 'save') {
                 if (!selectedProject) throw new Error('No project selected.');
@@ -220,6 +235,7 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate }: {
                     ? { ...m, proposal: undefined, content: `Applied. Branch \`${data.branch}\` created with commit \`${data.commit_hash}\`.\n\nFiles written:\n${data.files_written.map((f: string) => `- \`${f}\``).join('\n')}` }
                     : m
             ));
+            if (proposal.project) fetchStatus(proposal.project);
         } catch (error) {
             setMessages(prev => [...prev, { role: 'assistant', content: `Failed to apply: ${String(error)}` }]);
         } finally {

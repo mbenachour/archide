@@ -73,6 +73,7 @@ function ArchitectureFlow() {
   );
   const [showNewProject, setShowNewProject] = useState(false);
   const [editingNode, setEditingNode] = useState<{ id: string; data: any } | null>(null);
+  const [hasUnimplementedEdits, setHasUnimplementedEdits] = useState(false);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
@@ -323,7 +324,12 @@ function ArchitectureFlow() {
           <Background variant={BackgroundVariant.Dots} gap={16} size={2} color="#334155" />
 
           <Panel position="top-left" className="bg-slate-800 text-white p-4 rounded-xl shadow-xl border border-slate-700 w-80">
-            <h1 className="text-xl font-bold mb-2">Architectures</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <h1 className="text-xl font-bold">Architectures</h1>
+              {hasUnimplementedEdits && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" title="Unimplemented diagram edits" />
+              )}
+            </div>
             {projects.length === 0 ? (
               <p className="text-slate-400 text-xs mb-3">No projects yet. Add one to get started.</p>
             ) : (
@@ -350,7 +356,11 @@ function ArchitectureFlow() {
 
         </ReactFlow>
       </div>
-      <ChatPanel selectedProject={selectedProject} onDiagramUpdate={applyDiagramData} />
+      <ChatPanel
+        selectedProject={selectedProject}
+        onDiagramUpdate={applyDiagramData}
+        onUnimplementedEditsChange={setHasUnimplementedEdits}
+      />
     </div>
   );
 }
