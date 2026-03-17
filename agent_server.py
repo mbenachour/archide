@@ -303,12 +303,34 @@ async def diagram_implement_endpoint(req: ImplementRequest):
     with open(diagram_path) as f:
         current_diagram = json.load(f)
 
-    # Get previous diagram from the last diagramedits commit
-    prev_result = subprocess.run(
-        ["git", "show", "diagramedits:architecture.json"],
+    # Baseline = architecture.json snapshot stored in the most recent impl/* branch.
+    # That snapshot was written at confirm-time so it reflects exactly what was last implemented.
+    # Fallback: main:architecture.json, then empty diagram.
+    impl_branches = subprocess.run(
+        ["git", "branch", "--list", "impl/*", "--sort=-committerdate"],
         cwd=project_dir, capture_output=True, text=True
-    )
-    prev_diagram = json.loads(prev_result.stdout) if prev_result.returncode == 0 else {"nodes": [], "edges": []}
+    ).stdout.strip().splitlines()
+    prev_diagram = {"nodes": [], "edges": []}
+    for b in impl_branches:
+        b = b.strip()
+        snap = subprocess.run(
+            ["git", "show", f"{b}:architecture.json"],
+            cwd=project_dir, capture_output=True, text=True
+        )
+        if snap.returncode == 0:
+            prev_diagram = json.loads(snap.stdout)
+            break
+    else:
+        # No impl/* branch yet — use main as baseline
+        main_snap = subprocess.run(
+            ["git", "show", "main:architecture.json"],
+            cwd=project_dir, capture_output=True, text=True
+        )
+        if main_snap.returncode == 0:
+            try:
+                prev_diagram = json.loads(main_snap.stdout)
+            except Exception:
+                pass
 
     diff = _compute_diagram_diff(prev_diagram, current_diagram)
 
