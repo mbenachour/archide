@@ -69,6 +69,8 @@ Thumbs.db
 
 # Debug output
 debug/
+debug/*.txt
+debug/**
 
 # ArchIDE specific
 # Ignore analyzed repositories

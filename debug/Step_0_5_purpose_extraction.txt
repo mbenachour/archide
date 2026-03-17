@@ -1,5 +1,0 @@
-=== RAW ===
-This software acts as a Markdown cheat sheet, providing quick, ready-to-use syntax examples for headings, tables, code blocks, lists, quotes, footnotes, and media to help you format content correctly at runtime.
-
-=== CLEANED ===
-This software acts as a Markdown cheat sheet, providing quick, ready-to-use syntax examples for headings, tables, code blocks, lists, quotes, footnotes, and media to help you format content correctly at runtime.
