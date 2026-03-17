@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 const API = 'http://localhost:8833';
 
-const OPENAI_MODELS = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'];
+const OPENAI_MODELS = ['gpt-5-nano-2025-08-07', 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'];
 
 interface Settings {
     provider: string;
