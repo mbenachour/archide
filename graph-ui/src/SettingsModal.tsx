@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 const API = 'http://localhost:8833';
 
 const OPENAI_MODELS = ['gpt-5-nano-2025-08-07', 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'];
+const CODING_AGENTS = [{ value: 'claude-code', label: 'Claude Code' }];
 
 interface Settings {
     provider: string;
@@ -13,6 +14,8 @@ interface Settings {
     ollama_model: string;
     diagram_detail: boolean;
     diagram_skip_validation: boolean;
+    coding_agent: string;
+    agent_path: string;
 }
 
 const DEFAULTS: Settings = {
@@ -24,6 +27,8 @@ const DEFAULTS: Settings = {
     ollama_model: '',
     diagram_detail: false,
     diagram_skip_validation: false,
+    coding_agent: 'claude-code',
+    agent_path: '/usr/local/bin/claude',
 };
 
 interface Props {
@@ -219,6 +224,31 @@ export default function SettingsModal({ onClose }: Props) {
                                     onChange={v => set('diagram_skip_validation', v)}
                                     label="Skip validation pass"
                                 />
+                            </div>
+                        </section>
+
+                        {/* Implementation */}
+                        <section>
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 pb-1 border-b border-slate-700">Implementation</h3>
+                            <div className="flex flex-col gap-4">
+                                <Field label="Coding Agent">
+                                    <select
+                                        value={settings.coding_agent}
+                                        onChange={e => set('coding_agent', e.target.value)}
+                                        className="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                                    >
+                                        {CODING_AGENTS.map(a => (
+                                            <option key={a.value} value={a.value}>{a.label}</option>
+                                        ))}
+                                    </select>
+                                </Field>
+                                <Field label="Agent Path" hint="Path to the agent binary on your system">
+                                    <TextInput
+                                        value={settings.agent_path}
+                                        onChange={v => set('agent_path', v)}
+                                        placeholder="/usr/local/bin/claude"
+                                    />
+                                </Field>
                             </div>
                         </section>
                     </div>
