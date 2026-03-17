@@ -81,3 +81,5 @@ sessions.db-wal
 sessions.db-shm
 # User settings (may contain API keys)
 settings.json
+
+graph-ui/src/architectures/
