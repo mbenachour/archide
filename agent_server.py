@@ -389,8 +389,11 @@ async def diagram_confirm_endpoint(req: ConfirmRequest):
     coding_agent = s.get("coding_agent", "")
     agent_path = s.get("agent_path", "")
 
-    def git(cmd):
-        return subprocess.run(["git"] + cmd, cwd=project_dir, capture_output=True, text=True, check=True)
+    def git(cmd, check=True):
+        r = subprocess.run(["git"] + cmd, cwd=project_dir, capture_output=True, text=True)
+        if check and r.returncode != 0:
+            raise HTTPException(status_code=500, detail=f"git {cmd[0]} failed: {r.stderr.strip() or r.stdout.strip()}")
+        return r
 
     git(["checkout", "-b", branch])
 
@@ -406,9 +409,10 @@ async def diagram_confirm_endpoint(req: ConfirmRequest):
             f"{file_ops}"
         )
         result = subprocess.run(
-            [agent_path, "-p", prompt, "--allowedTools", "Edit,Write,Bash"],
+            [agent_path, "-p", prompt, "--allowed-tools", "Edit,Write,Bash"],
             cwd=project_dir, capture_output=True, text=True
         )
+        print(f"[claude-code] exit={result.returncode}\nstdout={result.stdout[:500]}\nstderr={result.stderr[:500]}")
         if result.returncode != 0:
             raise HTTPException(status_code=500, detail=f"Claude Code failed: {result.stderr or result.stdout}")
         written = [op["path"] for op in proposal["files"]]
