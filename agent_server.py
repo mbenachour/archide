@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -431,7 +431,8 @@ async def get_settings():
     return s
 
 @app.post("/api/settings")
-async def save_settings(body: dict):
+async def save_settings(request: Request):
+    body = await request.json()
     existing = _load_settings()
     # If a sensitive field comes back as "***", keep the existing stored value
     for key in _SENSITIVE:
