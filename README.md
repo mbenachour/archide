@@ -1,8 +1,8 @@
 # ArchIDE
 
-![ArchIDE](pic.png)
-
 ![Demo](vid.gif)
+
+![ArchIDE](pic.png)
 
 An architecture-first IDE where diagrams are the source of truth. You describe a system visually or in natural language — ArchIDE analyzes repositories, generates architecture graphs, and uses AI to plan and write code from the diagram.
 
