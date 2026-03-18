@@ -383,6 +383,27 @@ function ArchitectureFlow() {
           <MiniMap nodeColor="#475569" maskColor="rgba(15, 23, 42, 0.8)" />
           <Background variant={BackgroundVariant.Dots} gap={16} size={2} color="#334155" />
 
+          {isDirty && (
+            <Panel position="bottom-center">
+              <div className="flex items-center gap-3 bg-slate-800 border border-amber-500/50 text-white px-4 py-2 rounded-xl shadow-xl text-sm mb-4">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-slate-300">Unsaved canvas edits</span>
+                <button
+                  onClick={discardCanvasEdits}
+                  className="px-3 py-1 text-xs rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors"
+                >
+                  Discard
+                </button>
+                <button
+                  onClick={commitCanvasEdits}
+                  className="px-3 py-1 text-xs rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors"
+                >
+                  Commit
+                </button>
+              </div>
+            </Panel>
+          )}
+
           <Panel position="top-left" className="bg-slate-800 text-white p-4 rounded-xl shadow-xl border border-slate-700 w-80">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
