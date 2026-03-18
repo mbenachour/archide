@@ -77,6 +77,8 @@ function ArchitectureFlow() {
   const [hasUnimplementedEdits, setHasUnimplementedEdits] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [statusRefreshKey, setStatusRefreshKey] = useState(0);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, getIntersectingNodes } = useReactFlow();
@@ -150,6 +152,7 @@ function ArchitectureFlow() {
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(initialNodes, initialEdges);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
+    setIsDirty(false);
   }, [setNodes, setEdges]);
 
   // When a project is selected, load its graph
@@ -164,7 +167,6 @@ function ArchitectureFlow() {
   // Hooking up the ability to connect edges manually
   const onConnect = useCallback(
     (params: any) => {
-      // Style connecting edges to look identical to the auto-generated ones
       const edge = {
         ...params,
         animated: true,
@@ -174,9 +176,42 @@ function ArchitectureFlow() {
         markerEnd: { type: MarkerType.ArrowClosed, color: '#94a3b8' }
       };
       setEdges((eds) => addEdge(edge, eds));
+      setIsDirty(true);
     },
     [setEdges]
   );
+
+  const commitCanvasEdits = useCallback(async () => {
+    if (!selectedProject) return;
+    const diagram = {
+      nodes: nodes.map((n: any) => ({
+        id: n.id,
+        label: n.data.label,
+        path: n.data.path,
+        description: n.data.description,
+        tier: n.data.tier,
+      })),
+      edges: edges.map((e: any) => ({
+        source: e.source,
+        target: e.target,
+        type: e.label || 'uses',
+      })),
+    };
+    await fetch(`${API}/api/diagram/commit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project: selectedProject, diagram, message: 'canvas edit' }),
+    });
+    setIsDirty(false);
+    setStatusRefreshKey(k => k + 1);
+  }, [selectedProject, nodes, edges]);
+
+  const discardCanvasEdits = useCallback(() => {
+    if (!selectedProject) return;
+    fetch(`${API}/api/architectures/${selectedProject}`)
+      .then(r => r.json())
+      .then(data => applyDiagramData(data));
+  }, [selectedProject, applyDiagramData]);
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
