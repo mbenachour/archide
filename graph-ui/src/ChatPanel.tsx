@@ -283,7 +283,7 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplem
             {/* Header */}
             <div className="p-4 border-b border-slate-700 bg-slate-800/80 backdrop-blur shrink-0">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-white">AI Agent</h2>
+                    <h2 className="text-sm font-semibold text-white">ArchIDE Agent</h2>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={startNewSession}
