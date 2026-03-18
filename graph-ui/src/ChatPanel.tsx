@@ -115,10 +115,11 @@ const COMMAND_STYLES = {
     implement: { border: 'border-purple-500/60 focus-within:border-purple-400 focus-within:ring-purple-500/30',   dot: 'bg-purple-400',  text: 'text-purple-400',  btn: 'bg-purple-600 hover:bg-purple-500 disabled:hover:bg-purple-600',   label: 'Implement mode — optionally add a focus hint', btnLabel: 'Run' },
 };
 
-export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplementedEditsChange }: {
+export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplementedEditsChange, statusRefreshKey }: {
     selectedProject: string | null;
     onDiagramUpdate: (graphData: any) => void;
     onUnimplementedEditsChange?: (has: boolean) => void;
+    statusRefreshKey?: number;
 }) {
     const WELCOME_MSG: ChatMessage = { role: 'assistant', content: 'Hello! I am your Architecture Assistant. How can I help you design today?\n\nTip: use `/edit`, `/save`, or `/implement` to modify and version the diagram.' };
 
@@ -172,6 +173,11 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplem
         fetchStatus(selectedProject);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedProject]);
+
+    useEffect(() => {
+        if (selectedProject && statusRefreshKey) fetchStatus(selectedProject);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [statusRefreshKey]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

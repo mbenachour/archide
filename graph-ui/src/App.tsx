@@ -468,6 +468,7 @@ function ArchitectureFlow() {
         selectedProject={selectedProject}
         onDiagramUpdate={applyDiagramData}
         onUnimplementedEditsChange={setHasUnimplementedEdits}
+        statusRefreshKey={statusRefreshKey}
       />
     </div>
   );
