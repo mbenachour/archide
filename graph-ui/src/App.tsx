@@ -121,6 +121,16 @@ function ArchitectureFlow() {
     loadProjects();
   }, [loadProjects]);
 
+  const handleNodesChange = useCallback((changes: any[]) => {
+    onNodesChange(changes);
+    if (changes.some((c: any) => c.type === 'add' || c.type === 'remove')) setIsDirty(true);
+  }, [onNodesChange]);
+
+  const handleEdgesChange = useCallback((changes: any[]) => {
+    onEdgesChange(changes);
+    if (changes.some((c: any) => c.type === 'add' || c.type === 'remove')) setIsDirty(true);
+  }, [onEdgesChange]);
+
   const applyDiagramData = useCallback((graphData: any) => {
     if (!graphData.nodes || !graphData.edges) {
       console.error("Invalid graph data format:", graphData);
@@ -265,6 +275,7 @@ function ArchitectureFlow() {
         newNode.zIndex = -10;
       }
 
+      setIsDirty(true);
       setNodes((nds) => {
         // Find if we dropped onto an existing container immediately
         const containerHit = nds.find(n =>
@@ -350,6 +361,7 @@ function ArchitectureFlow() {
                 ? { ...n, data: { ...newData, onDoubleClick: () => setEditingNode({ id: nodeId, data: newData }) } }
                 : n
             ));
+            setIsDirty(true);
           }}
         />
       )}
@@ -358,8 +370,8 @@ function ArchitectureFlow() {
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
+          onNodesChange={handleNodesChange}
+          onEdgesChange={handleEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
