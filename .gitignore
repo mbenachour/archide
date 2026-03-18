@@ -76,9 +76,9 @@ debug/**
 # Ignore analyzed repositories
 projects/
 # Session storage
-sessions.db
-sessions.db-wal
-sessions.db-shm
+*.db
+*.db-wal
+*.db-shm
 # User settings (may contain API keys)
 settings.json
 
