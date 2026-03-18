@@ -411,40 +411,6 @@ def step3_generate_graph(client, purpose: str, explanation: str, classification:
     return parsed
 
 
-SYSTEM_PROMPT_4 = """Given the architecture graph JSON and manifests, verify if important components (like DBs from .env or services from docker-compose) are missing.
-Return JSON:
-{ "complete": true/false, "missing_nodes": ["Redis"], "missing_edges": [{"source": "API", "target": "Redis", "type": "USES_CACHE"}], "notes": "..." }"""
-
-def step4_validate(client, graph_json: dict, data: dict, debug_dir: Optional[str] = None) -> dict:
-    if not format_manifests(data): return {"complete": True}
-    user = f"<graph>\n{json.dumps(graph_json)}\n</graph>\n<manifests>\n{format_manifests(data)[:6000]}\n</manifests>"
-    res = call_llm(client, SYSTEM_PROMPT_4, user, "Step 4/5 — graph validation", debug_dir)
-    return extract_json(res) or {"complete": True}
-
-
-SYSTEM_PROMPT_5 = """You are a graph repair tool. The provided graph JSON is missing the specified nodes and edges.
-Rewrite and return the FULL updated graph JSON incorporating the missing nodes/edges.
-
-Input:
-<graph_json>...</graph_json>
-<missing_nodes>["Redis"]</missing_nodes>
-<missing_edges>[{"source": "API", "target": "Redis", "type": "USES_CACHE"}]</missing_edges>
-
-Output ONLY the completely merged valid JSON:
-{
-  "nodes": [...],
-  "edges": [...]
-}"""
-
-def step5_repair_graph(client, graph_json: dict, validation: dict, debug_dir: Optional[str] = None) -> dict:
-    nodes = validation.get("missing_nodes", [])
-    edges = validation.get("missing_edges", [])
-    if not nodes and not edges: return graph_json
-    
-    user = f"<graph_json>\n{json.dumps(graph_json)}\n</graph_json>\n<missing_nodes>\n{json.dumps(nodes)}\n</missing_nodes>\n<missing_edges>\n{json.dumps(edges)}\n</missing_edges>"
-    res = call_llm(client, SYSTEM_PROMPT_5, user, "Step 5/5 — repair", debug_dir)
-    return extract_json(res) or graph_json
-
 
 # ── Exporter ────────────────────────────────────────────────────────────────
 
@@ -475,7 +441,6 @@ def main():
     parser = argparse.ArgumentParser(description="Generate a Graph JSON via local git clone")
     parser.add_argument("repo", help="owner/repo (cloned from GitHub) OR local path")
     parser.add_argument("--out", default="graph-ui/src/architectures/graph.json", help="Output file path (default: graph-ui/src/architectures/graph.json)")
-    parser.add_argument("--skip-validation", action="store_true", help="Skip missing node checks")
     parser.add_argument("--detail", action="store_true", help="Include Dev tools and sub-modules")
     parser.add_argument("--debug", action="store_true", help="Save intermediate Ollama prompt/responses")
     parser.add_argument("--provider", default=os.environ.get("PROVIDER", "ollama"), choices=["ollama", "openai"])
@@ -516,14 +481,6 @@ def main():
     component_map = step2_map(ai, explanation, data["file_tree"], classification, args.detail, debug_dir)
     
     graph_json = step3_generate_graph(ai, purpose, explanation, classification, component_map, args.detail, debug_dir)
-
-    if not args.skip_validation:
-        validation = step4_validate(ai, graph_json, data, debug_dir)
-        if not validation.get("complete", True):
-            missing_nodes = validation.get("missing_nodes", [])
-            print(f"        ⚠ Validation found gaps: {missing_nodes}")
-            graph_json = step5_repair_graph(ai, graph_json, validation, debug_dir)
-            print("        ✓ Graph JSON repaired")
 
     json_output = build_json_output(graph_json, args.repo)
 
