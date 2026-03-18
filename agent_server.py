@@ -131,6 +131,11 @@ class DiagramSaveRequest(BaseModel):
     project: str
     label: str | None = None
 
+class DiagramCommitRequest(BaseModel):
+    project: str
+    diagram: dict
+    message: str | None = None
+
 class ImplementRequest(BaseModel):
     project: str
     hint: str | None = None
@@ -242,6 +247,26 @@ async def diagram_edit_endpoint(req: DiagramEditRequest):
             print(f"Warning: auto-save git commit failed: {e}")
 
     return {"diagram": new_diagram, "commit_hash": commit_hash}
+
+
+@app.post("/api/diagram/commit")
+async def diagram_commit_endpoint(req: DiagramCommitRequest):
+    """Accepts a diagram from the frontend canvas and commits it to diagramedits."""
+    diagram_path = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures", f"{req.project}.json")
+    project_dir = os.path.join(os.path.dirname(__file__), "projects", req.project)
+
+    if not os.path.isdir(os.path.join(project_dir, ".git")):
+        raise HTTPException(status_code=404, detail=f"No git repo found at projects/{req.project}. Clone it first.")
+
+    with open(diagram_path, "w") as f:
+        json.dump(req.diagram, f, indent=2)
+
+    label = req.message or "canvas edit"
+    try:
+        commit_hash = _git_save_diagram(project_dir, diagram_path, f"auto-save: {label[:72]}")
+        return {"commit_hash": commit_hash, "branch": "diagramedits"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/diagram/save")
