@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+# git is required for diagram commit / implement operations
+RUN apt-get update && apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python deps before bind-mounting source so they land in the image layer
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8833
+
+CMD ["python", "agent_server.py"]
