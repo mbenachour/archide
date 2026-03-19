@@ -84,7 +84,7 @@ def search_codebase(project: str, query: str) -> str:
     try:
         model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
         embeds = model.encode([query])
-        client = QdrantClient(url="http://localhost:6334", prefer_grpc=True)
+        client = QdrantClient(url=os.environ.get("QDRANT_URL", "http://localhost:6334"), prefer_grpc=True)
         # Suppress deprecation warning
         res = client.query_points(collection_name=project, query=list(embeds)[0], using="embedding", limit=3).points
         
@@ -150,7 +150,7 @@ pending_proposals: dict = {}
 async def index_status_endpoint(project: str):
     from qdrant_client import QdrantClient
     try:
-        client = QdrantClient(url="http://localhost:6334", prefer_grpc=True)
+        client = QdrantClient(url=os.environ.get("QDRANT_URL", "http://localhost:6334"), prefer_grpc=True)
         return {"indexed": client.collection_exists(collection_name=project)}
     except Exception:
         return {"indexed": False}
@@ -303,7 +303,7 @@ def _search_qdrant(project: str, queries: list[str], limit_per_query: int = 2) -
     from qdrant_client import QdrantClient
     try:
         model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-        client = QdrantClient(url="http://localhost:6334", prefer_grpc=True)
+        client = QdrantClient(url=os.environ.get("QDRANT_URL", "http://localhost:6334"), prefer_grpc=True)
         snippets = []
         for query in queries:
             embeds = model.encode([query])
