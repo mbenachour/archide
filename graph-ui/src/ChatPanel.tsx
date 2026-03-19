@@ -136,7 +136,11 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplem
         const key = `session:${selectedProject ?? '__default'}`;
         const existing = localStorage.getItem(key);
         if (existing) return existing;
-        const id = crypto.randomUUID();
+        const id = typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                .map((b, i) => ([4,6,8,10].includes(i) ? '-' : '') + b.toString(16).padStart(2,'0'))
+                .join('');
         localStorage.setItem(key, id);
         return id;
     });
@@ -144,7 +148,11 @@ export default function ChatPanel({ selectedProject, onDiagramUpdate, onUnimplem
 
     const startNewSession = () => {
         const key = `session:${selectedProject ?? '__default'}`;
-        const id = crypto.randomUUID();
+        const id = typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : Array.from(crypto.getRandomValues(new Uint8Array(16)))
+                .map((b, i) => ([4,6,8,10].includes(i) ? '-' : '') + b.toString(16).padStart(2,'0'))
+                .join('');
         localStorage.setItem(key, id);
         setSessionId(id);
         setMessages([WELCOME_MSG]);
