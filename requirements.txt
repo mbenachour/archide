@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+requests
+python-dotenv
+cocoindex
+sentence-transformers
+qdrant-client
+anthropic
+openai-agents
