@@ -18,20 +18,23 @@ services:
     ports:
       - "8833:8833"
     env_file:
-      - .env
+      - path: .env
+        required: false   # app still starts without .env; set keys via Settings UI
     environment:
-      # Passed to agent_server.py for when the hardcoded URLs are replaced
       QDRANT_URL: http://qdrant:6334
       COCOINDEX_DATABASE_URL: postgresql://cocoindex:cocoindex@postgres:5432/cocoindex
+      DATA_DIR: /app/data   # sessions.db + settings.json land here (named volume)
     volumes:
-      # Source files (bind mount — changes are reflected instantly)
+      # Source files (bind mount — edits are reflected without rebuild)
       - ./agent_server.py:/app/agent_server.py
       - ./diagram.py:/app/diagram.py
       - ./indexer.py:/app/indexer.py
-      # Persistent data
-      - ./projects:/app/projects
+      # Architecture JSONs — created as an empty dir on fresh clone (gitignored)
       - ./graph-ui/src/architectures:/app/graph-ui/src/architectures
-      - backend_state:/app/state
+      # Cloned repos — created as an empty dir on fresh clone (gitignored)
+      - ./projects:/app/projects
+      # Persisted app state (sessions.db, settings.json) — survives container recreate
+      - backend_data:/app/data
     depends_on:
       qdrant:
         condition: service_healthy
@@ -72,4 +75,4 @@ services:
 volumes:
   qdrant_data:
   postgres_data:
-  backend_state:
+  backend_data:    # sessions.db + settings.json

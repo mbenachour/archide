@@ -20,8 +20,10 @@ import json
 import subprocess
 from agents import Agent, Runner, function_tool, SQLiteSession
 
-SESSIONS_DB = os.path.join(os.path.dirname(__file__), "sessions.db")
-SETTINGS_PATH = os.path.join(os.path.dirname(__file__), "settings.json")
+_DATA_DIR = os.environ.get("DATA_DIR", os.path.dirname(__file__))
+os.makedirs(_DATA_DIR, exist_ok=True)
+SESSIONS_DB = os.path.join(_DATA_DIR, "sessions.db")
+SETTINGS_PATH = os.path.join(_DATA_DIR, "settings.json")
 
 # ── Settings bootstrap ────────────────────────────────────────────────────────
 
