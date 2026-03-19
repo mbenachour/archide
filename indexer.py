@@ -1,50 +1,56 @@
 import os
 import re
 import json
-import urllib.request
+import socket
 import subprocess
-import time
+from urllib.parse import urlparse
 import cocoindex
 from numpy.typing import NDArray
 import numpy as np
 
-def ensure_qdrant_running():
-    try:
-        urllib.request.urlopen("http://localhost:6333").read()
-        print("Qdrant is already running.")
-    except Exception:
-        print("Starting Qdrant via Docker...")
-        subprocess.run(
-            ["docker", "run", "-d", "-p", "6333:6333", "-p", "6334:6334", "qdrant/qdrant"], 
-            check=False
-        )
-        for _ in range(15):
-            try:
-                urllib.request.urlopen("http://localhost:6333").read()
-                print("Qdrant started!")
-                break
-            except Exception:
-                time.sleep(1)
+QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6334")
+COCOINDEX_DATABASE_URL = os.environ.get(
+    "COCOINDEX_DATABASE_URL", "postgres://cocoindex:cocoindex@localhost:5432/cocoindex"
+)
 
-def ensure_db_running():
-    try:
-        import socket
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(("localhost", 5432))
-        print("Postgres is running.")
-    except Exception:
-        print("Starting Postgres via Docker...")
-        subprocess.run(
-            ["docker", "run", "--name", "cocoindex-pg", "-e", "POSTGRES_PASSWORD=postgres", "-e", "POSTGRES_DB=cocoindex", "-p", "5432:5432", "-d", "postgres"],
-            check=False
-        )
-        time.sleep(5)
-    
-    os.environ["COCOINDEX_DATABASE_URL"] = "postgres://postgres:postgres@localhost:5432/cocoindex"
 
-def ensure_services_running():
-    ensure_qdrant_running()
-    ensure_db_running()
+def _tcp_reachable(host: str, port: int, timeout: float = 2.0) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def check_services():
+    # ── Qdrant ────────────────────────────────────────────────────────────────
+    parsed_qdrant = urlparse(QDRANT_URL)
+    qdrant_host = parsed_qdrant.hostname or "localhost"
+    qdrant_port = parsed_qdrant.port or 6334
+    if not _tcp_reachable(qdrant_host, qdrant_port):
+        raise RuntimeError(
+            f"Qdrant is not reachable at {QDRANT_URL}.\n"
+            "Start it before running the indexer, e.g.:\n"
+            "  docker run -d -p 6333:6333 -p 6334:6334 qdrant/qdrant\n"
+            "Or set the QDRANT_URL environment variable to point to a running instance."
+        )
+    print("Qdrant is reachable.")
+
+    # ── PostgreSQL ────────────────────────────────────────────────────────────
+    parsed_pg = urlparse(COCOINDEX_DATABASE_URL)
+    pg_host = parsed_pg.hostname or "localhost"
+    pg_port = parsed_pg.port or 5432
+    if not _tcp_reachable(pg_host, pg_port):
+        raise RuntimeError(
+            f"PostgreSQL is not reachable at {pg_host}:{pg_port}.\n"
+            "Start it before running the indexer, e.g.:\n"
+            "  docker run -d -e POSTGRES_USER=cocoindex -e POSTGRES_PASSWORD=cocoindex \\\n"
+            "             -e POSTGRES_DB=cocoindex -p 5432:5432 postgres:16-alpine\n"
+            "Or set the COCOINDEX_DATABASE_URL environment variable to point to a running instance."
+        )
+    print("PostgreSQL is reachable.")
+
+    os.environ["COCOINDEX_DATABASE_URL"] = COCOINDEX_DATABASE_URL
 
 def index_codebase(project_id: str):
     json_path = os.path.join("graph-ui", "src", "architectures", f"{project_id}.json")
@@ -67,7 +73,7 @@ def index_codebase(project_id: str):
         else:
             raise ValueError(f"Original repo '{repo}' doesn't look like a standard github owner/repo string.")
 
-    ensure_services_running()
+    check_services()
 
     # Prepare CocoIndex flow
     @cocoindex.transform_flow()
@@ -78,9 +84,8 @@ def index_codebase(project_id: str):
             )
         )
 
-    QDRANT_URL = "http://localhost:6334"
     QDRANT_COLLECTION = f"{project_id}"
-    
+
     qdrant_connection = cocoindex.add_auth_entry(
         "Qdrant",
         cocoindex.targets.QdrantConnection(grpc_url=QDRANT_URL),
