@@ -17,9 +17,6 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "8833:8833"
-    env_file:
-      - path: .env
-        required: false   # app still starts without .env; set keys via Settings UI
     environment:
       QDRANT_URL: http://qdrant:6334
       COCOINDEX_DATABASE_URL: postgresql://cocoindex:cocoindex@postgres:5432/cocoindex
