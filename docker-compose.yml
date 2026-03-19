@@ -1,0 +1,75 @@
+services:
+
+  # ── React SPA (served by nginx) ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  # ── FastAPI backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8833:8833"
+    env_file:
+      - .env
+    environment:
+      # Passed to agent_server.py for when the hardcoded URLs are replaced
+      QDRANT_URL: http://qdrant:6334
+      COCOINDEX_DATABASE_URL: postgresql://cocoindex:cocoindex@postgres:5432/cocoindex
+    volumes:
+      # Source files (bind mount — changes are reflected instantly)
+      - ./agent_server.py:/app/agent_server.py
+      - ./diagram.py:/app/diagram.py
+      - ./indexer.py:/app/indexer.py
+      # Persistent data
+      - ./projects:/app/projects
+      - ./graph-ui/src/architectures:/app/graph-ui/src/architectures
+      - backend_state:/app/state
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  # ── Qdrant — vector DB for code embeddings ──────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"   # HTTP / REST
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/6333' 2>/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  # ── PostgreSQL — Cocoindex metadata store ────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cocoindex
+      POSTGRES_PASSWORD: cocoindex
+      POSTGRES_DB: cocoindex
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cocoindex"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  qdrant_data:
+  postgres_data:
+  backend_state:
