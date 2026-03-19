@@ -633,6 +633,7 @@ async def diagram_pending_commits_endpoint(project: str):
 # ── New Project ──────────────────────────────────────────────────────────────
 
 ARCHITECTURES_DIR = os.path.join(os.path.dirname(__file__), "graph-ui", "src", "architectures")
+os.makedirs(ARCHITECTURES_DIR, exist_ok=True)
 
 # Track running new-project subprocesses: project_slug -> process
 _new_project_procs: dict[str, subprocess.Popen] = {}
@@ -640,15 +641,12 @@ _new_project_procs: dict[str, subprocess.Popen] = {}
 
 @app.get("/api/architectures")
 async def list_architectures():
-    try:
-        names = [
-            f[:-5]  # strip .json
-            for f in os.listdir(ARCHITECTURES_DIR)
-            if f.endswith(".json")
-        ]
-        return {"architectures": sorted(names)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    names = [
+        f[:-5]  # strip .json
+        for f in os.listdir(ARCHITECTURES_DIR)
+        if f.endswith(".json")
+    ]
+    return {"architectures": sorted(names)}
 
 
 @app.get("/api/architectures/{project}")

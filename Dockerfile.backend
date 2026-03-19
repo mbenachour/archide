@@ -10,6 +10,12 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-create directories that are gitignored and may not exist on the host.
+# Bind mounts will overlay these at runtime; they act as safe fallbacks.
+RUN mkdir -p /app/projects \
+             /app/graph-ui/src/architectures \
+             /app/data
+
 EXPOSE 8833
 
 CMD ["python", "agent_server.py"]
